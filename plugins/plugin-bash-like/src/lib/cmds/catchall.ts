@@ -17,6 +17,7 @@
 import * as Debug from 'debug'
 const debug = Debug('plugins/bash-like/cmds/catchall')
 
+import { CommandRegistrar } from '@kui-shell/core/models/command'
 import { inBrowser, isHeadless } from '@kui-shell/core/core/capabilities'
 
 /**
@@ -49,7 +50,7 @@ export const dispatchToShell = async ({ block, command, argv, argvNoOptions, exe
  * On preload, register the catchall handler
  *
  */
-export const preload = (commandTree) => {
+export const preload = (commandTree: CommandRegistrar) => {
   //
   // if we aren't running in a browser, then pass any command not
   // found exceptions to the outer shell

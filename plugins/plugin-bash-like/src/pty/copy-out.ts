@@ -94,7 +94,7 @@ const copyRecursive = async (src: string, dest: string) => {
 }
 
 /** plain file copy that is ASAR-friendly */
-const copyFile = (src: string, target: string): Promise<string> => new Promise<string>(async (resolve, reject) => {
+export const copyFile = (src: string, target: string): Promise<string> => new Promise<string>(async (resolve, reject) => {
   debug('copyFile', src, target)
 
   let targetFile = target

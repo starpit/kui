@@ -145,14 +145,22 @@ export const onConnection = (exitNow: ExitHandler) => async (ws: Channel) => {
 
         case 'exec':
           try {
-            shell = pty.spawn(await getLoginShell(), ['-l', '-i', '-c', '--', msg.cmdline], {
+            const commandPart = msg.cmdline ? ['-c', '--', msg.cmdline] : []
+            shell = pty.spawn(msg.shell || await getLoginShell(), ['-l', '-i'].concat(commandPart), {
               name: 'xterm-color',
               rows: msg.rows && parseInt(msg.rows, 10),
               cols: msg.cols && parseInt(msg.cols, 10),
               cwd: msg.cwd || process.cwd(),
-              env: msg.env || process.env
+              env: Object.assign({}, msg.env || process.env, { KUI: 'true' })
             })
-            // termios.setattr(shell['_fd'], { lflag: { ECHO: false } })
+
+            if (msg.noEcho) {
+              const { native, Termios } = await import('node-termios')
+              const sym = native.ALL_SYMBOLS
+              const tty = new Termios(shell['_fd'])
+              tty.c_lflag &= ~(sym.ECHO | sym.ECHONL)
+              tty.writeTo(shell['_fd'])
+            }
 
             // send all PTY data out to the websocket client
             shell.on('data', (data) => {

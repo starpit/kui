@@ -43,7 +43,7 @@ const usage = {
  * Helper methods to crawl the DOM
  *
  */
-const getCurrentTab = () => element('.main > .tab-container > tab.visible')
+export const getCurrentTab = () => element('.main > .tab-container > tab.visible')
 const getCurrentTabButton = () => element('.main .left-tab-stripe .left-tab-stripe-button-selected')
 const getCurrentTabButtonLabel = () => element('.left-tab-stripe-button-label', getCurrentTabButton())
 
@@ -182,6 +182,9 @@ const oneTimeInit = (): void => {
 
   // initialize the first tab
   perTabInit(false)
+
+  // emit a new tab event for the first tab, on page load
+  eventBus.emit('/tab/new', getCurrentTab())
 }
 
 /**
@@ -235,6 +238,7 @@ const newTab = async (basedOnEvent = false): Promise<boolean> => {
 
   newTabButton.scrollIntoView()
 
+  eventBus.emit('/tab/new', newTab)
   return true
 }
 

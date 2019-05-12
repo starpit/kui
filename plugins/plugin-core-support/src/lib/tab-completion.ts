@@ -21,6 +21,7 @@ import { inBrowser } from '@kui-shell/core/core/capabilities'
 import { keys } from '@kui-shell/core/webapp/keys'
 import * as cli from '@kui-shell/core/webapp/cli'
 import * as repl from '@kui-shell/core/core/repl'
+import eventBus from '@kui-shell/core/core/events'
 import { findFile } from '@kui-shell/core/core/find-file'
 import { injectCSS } from '@kui-shell/core/webapp/util/inject'
 
@@ -134,7 +135,8 @@ const complete = (match: string, prompt: HTMLInputElement, { temporaryContainer 
  */
 const installKeyHandlers = (prompt: HTMLInputElement) => {
   if (prompt) {
-    return [ listenForUpDown(prompt),
+    return [
+      listenForUpDown(prompt),
       listenForEscape(prompt)
     ]
   } else {
@@ -512,8 +514,8 @@ const filterAndPresentEntitySuggestions = (last: string, block: HTMLElement, pro
     const fqn = `/${namespace}/${actionWithPackage}`
 
     return (name.indexOf(last) === 0 && actionWithPackage) ||
-            (actionWithPackage.indexOf(last) === 0 && actionWithPackage) ||
-            (fqn.indexOf(last) === 0 && fqn)
+      (actionWithPackage.indexOf(last) === 0 && actionWithPackage) ||
+      (fqn.indexOf(last) === 0 && fqn)
   }).filter(x => x)
 
   debug('filtered list', filteredList)
@@ -640,94 +642,132 @@ export default () => {
         if (value) {
           evt.preventDefault() // for now at least, we want to keep the focus on the current <input>
 
-          if (temporaryContainer) {
-            // we already have a temporaryContainer
-            // attached to the block, so tab means cycle
-            // through the options
-            const current = temporaryContainer.querySelector('.selected')
-            const next = (current.nextSibling || temporaryContainer.querySelector(':first-child')) as HTMLElement
-            if (next) {
-              current.classList.remove('selected')
-              next.classList.add('selected')
-              next['scrollIntoViewIfNeeded'](false)
+          const builtin = () => {
+            if (temporaryContainer) {
+              // we already have a temporaryContainer
+              // attached to the block, so tab means cycle
+              // through the options
+              const current = temporaryContainer.querySelector('.selected')
+              const next = (current.nextSibling || temporaryContainer.querySelector(':first-child')) as HTMLElement
+              if (next) {
+                current.classList.remove('selected')
+                next.classList.add('selected')
+                next['scrollIntoViewIfNeeded'](false)
+              }
+              return
             }
-            return
-          }
 
-          const handleUsage = usageError => {
-            const usage = usageError.raw ? usageError.raw.usage || usageError.raw : usageError.usage || usageError
-            debug('usage', usage, usageError)
+            const handleUsage = usageError => {
+              const usage = usageError.raw ? usageError.raw.usage || usageError.raw : usageError.usage || usageError
+              debug('usage', usage, usageError)
 
-            if (usage.fn) {
-              // resolve the generator and retry
-              debug('resolving generator')
-              handleUsage(usage.fn(usage.command))
-            } else if (usageError.partialMatches || usageError.available) {
-              // command not found, with partial matches that we can offer the user
-              suggestCommandCompletions(usageError.partialMatches || usageError.available,
-                prompt.value,
-                block, prompt,
-                temporaryContainer)
-            } else if (usage && usage.command) {
-              // so we have a usage model; let's
-              // determine what parameters we might be
-              // able to help with
-              const required = usage.required || []
-              const optionalPositionals = (usage.optional || []).filter(({ positional }) => positional)
-              const oneofs = usage.oneof ? [usage.oneof[0]] : []
-              const positionals = required.concat(oneofs).concat(optionalPositionals)
+              if (usage.fn) {
+                // resolve the generator and retry
+                debug('resolving generator')
+                handleUsage(usage.fn(usage.command))
+              } else if (usageError.partialMatches || usageError.available) {
+                // command not found, with partial matches that we can offer the user
+                suggestCommandCompletions(usageError.partialMatches || usageError.available,
+                                          prompt.value,
+                                          block, prompt,
+                                          temporaryContainer)
+              } else if (usage && usage.command) {
+                // so we have a usage model; let's
+                // determine what parameters we might be
+                // able to help with
+                const required = usage.required || []
+                const optionalPositionals = (usage.optional || []).filter(({ positional }) => positional)
+                const oneofs = usage.oneof ? [usage.oneof[0]] : []
+                const positionals = required.concat(oneofs).concat(optionalPositionals)
 
-              debug('positionals', positionals)
-              if (positionals.length > 0) {
-                const args = repl.split(prompt.value).filter(_ => !/^-/.test(_)) // this is the "argv", for the current prompt value
-                const commandIdx = args.indexOf(usage.command) // the terminal command of the prompt
-                const nActuals = args.length - commandIdx - 1
-                const lastIdx = Math.max(0, nActuals - 1) // if no actuals, use first param
-                const param = positionals[lastIdx]
+                debug('positionals', positionals)
+                if (positionals.length > 0) {
+                  const args = repl.split(prompt.value).filter(_ => !/^-/.test(_)) // this is the "argv", for the current prompt value
+                  const commandIdx = args.indexOf(usage.command) // the terminal command of the prompt
+                  const nActuals = args.length - commandIdx - 1
+                  const lastIdx = Math.max(0, nActuals - 1) // if no actuals, use first param
+                  const param = positionals[lastIdx]
 
-                debug('maybe', args, commandIdx, lastIdx, nActuals, param, args[commandIdx + lastIdx])
+                  debug('maybe', args, commandIdx, lastIdx, nActuals, param, args[commandIdx + lastIdx])
 
-                if (commandIdx === args.length && !prompt.value.match(/\s+$/)) {
-                  // then the prompt has e.g. "wsk package" with no terminal whitespace; nothing to do yet
+                  if (commandIdx === args.length && !prompt.value.match(/\s+$/)) {
+                    // then the prompt has e.g. "wsk package" with no terminal whitespace; nothing to do yet
 
-                } else if (param) {
-                  // great, there is a positional we can help with
-                  try {
-                    // we found a required positional parameter, now suggest values for this parameter
-                    suggest(param, findFile(args[commandIdx + lastIdx + 1], true),
-                      block, prompt, temporaryContainer, commandIdx + lastIdx)
-                  } catch (err) {
-                    console.error(err)
+                  } else if (param) {
+                    // great, there is a positional we can help with
+                    try {
+                      // we found a required positional parameter, now suggest values for this parameter
+                      suggest(param, findFile(args[commandIdx + lastIdx + 1], true),
+                              block, prompt, temporaryContainer, commandIdx + lastIdx)
+                    } catch (err) {
+                      console.error(err)
+                    }
+                  }
+                }
+              } else if (!inBrowser()) {
+                const { A: args, endIndices } = repl._split(prompt.value, true, true) as repl.ISplit
+                const lastIdx = prompt.selectionStart
+                debug('falling back on local file completion', args, lastIdx)
+
+                for (let ii = 0; ii < endIndices.length; ii++) {
+                  if (endIndices[ii] >= lastIdx) {
+                    // trim beginning only; e.g. `ls /tmp/mo\ ` <-- we need that trailing space
+                    const last = prompt.value.substring(endIndices[ii - 1], lastIdx).replace(/^\s+/, '')
+                    suggestLocalFile(last, block, prompt, temporaryContainer, lastIdx)
+                    break
                   }
                 }
               }
-            } else if (!inBrowser()) {
-              const { A: args, endIndices } = repl._split(prompt.value, true, true) as repl.ISplit
-              const lastIdx = prompt.selectionStart
-              debug('falling back on local file completion', args, lastIdx)
+            }
 
-              for (let ii = 0; ii < endIndices.length; ii++) {
-                if (endIndices[ii] >= lastIdx) {
-                  // trim beginning only; e.g. `ls /tmp/mo\ ` <-- we need that trailing space
-                  const last = prompt.value.substring(endIndices[ii - 1], lastIdx).replace(/^\s+/, '')
-                  suggestLocalFile(last, block, prompt, temporaryContainer, lastIdx)
-                  break
+            try {
+              debug('fetching usage', value)
+              const usage = repl.qexec(`${value} --help`, undefined, undefined, { failWithUsage: true })
+              if (usage.then) {
+                usage.then(handleUsage, handleUsage)
+              } else {
+                handleUsage(usage)
+              }
+            } catch (err) {
+              console.error(err)
+            }
+          } /* builtin */
+
+          if (inBrowser()) {
+            return builtin()
+          }
+
+          const args = repl.split(value) // this is the "argv", for the current prompt value
+          debug('args', args)
+          eventBus.emit('/tab/completion/request', {
+            words: value,
+            wordIdx: args.length - 1,
+            cb: (completions: { count: number, options: string[] }) => {
+              debug('completions', completions)
+              if (completions.count === 0) {
+                builtin()
+              } else {
+                const last = args[args.length - 1]
+
+                if (completions.count === 1) {
+                  debug('singleton pty completion', completions.options[0])
+                  complete(completions.options[0].replace(new RegExp(`^${last}`), ''), prompt, {
+                    temporaryContainer,
+                    dirname: false,
+                    partial: value
+                  })
+                } else {
+                  debug('multiple pty completions')
+                  if (!temporaryContainer) {
+                    temporaryContainer = makeCompletionContainer(block, prompt, last)
+                  }
+
+                  // add suggestions to the container
+                  completions.options.forEach(addSuggestion(temporaryContainer, undefined, prompt))
                 }
               }
             }
-          }
-
-          try {
-            debug('fetching usage', value)
-            const usage = repl.qexec(`${value} --help`, undefined, undefined, { failWithUsage: true })
-            if (usage.then) {
-              usage.then(handleUsage, handleUsage)
-            } else {
-              handleUsage(usage)
-            }
-          } catch (err) {
-            console.error(err)
-          }
+          })
         }
       }
     }

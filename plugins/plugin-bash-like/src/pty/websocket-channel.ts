@@ -29,6 +29,26 @@ class WebSocketChannel extends WebSocket implements Channel {
     super(url, undefined /*, { rejectUnauthorized: false } */)
   }
 
+  removeEventListener (eventType: string, handler: any) {
+    switch (eventType) {
+      case 'open':
+        this.onopen = undefined
+        break
+
+      case 'message':
+        this.onmessage = undefined
+        break
+
+      case 'error':
+        this.onerror = undefined
+        break
+
+      case 'close':
+        this.onclose = undefined
+        break
+    }
+  }
+
   on (eventType: string, handler: any) {
     switch (eventType) {
       case 'open':

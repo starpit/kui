@@ -356,32 +356,43 @@ const webviewChannelFactory: ChannelFactory = async () => {
   return channel
 }
 
+interface IPtyOptions {
+  rows: number
+  cols: number
+  shell?: string
+  noEcho?: boolean
+}
+
 /**
  * websocket factory for remote/proxy connection
  *
  */
-const getOrCreateChannel = async (cmdline: string, channelFactory: ChannelFactory, tab: Element, terminal: xterm.Terminal): Promise<Channel> => {
+export const getOrCreateChannel = async (cmdline: string, ptyOptions: IPtyOptions, channelHolder?: Element, channelFactory = getChannelFactory()): Promise<Channel> => {
   // tell the server to start a subprocess
   const doExec = (ws: Channel) => {
-    debug('exec after open', terminal.cols, terminal.rows)
+    debug('exec after open', ptyOptions.cols, ptyOptions.rows)
 
     ws.send(JSON.stringify({
       type: 'exec',
       cmdline,
-      rows: terminal.rows,
-      cols: terminal.cols,
+      rows: ptyOptions.rows,
+      cols: ptyOptions.cols,
+      noEcho: ptyOptions.noEcho,
       cwd: !inBrowser() && process.cwd(),
       env: !inBrowser() && process.env
     }))
   }
 
-  const cachedws = tab['ws'] as Channel
+  const cachedws = channelHolder && channelHolder['ws'] as Channel
 
   if (!cachedws || cachedws.readyState === WebSocket.CLOSING || cachedws.readyState === WebSocket.CLOSED) {
     debug('allocating new channel')
     const ws = await channelFactory()
     debug('allocated new channel', ws)
-    tab['ws'] = ws
+
+    if (channelHolder) {
+      channelHolder['ws'] = ws
+    }
 
     // when the websocket is ready, handle any queued input; only then
     // do we focus the terminal (till then, the CLI module will handle
@@ -393,6 +404,22 @@ const getOrCreateChannel = async (cmdline: string, channelFactory: ChannelFactor
     debug('reusing existing websocket')
     doExec(cachedws)
     return cachedws
+  }
+}
+
+/**
+ * Create a new channel to the pty server
+ *
+ */
+const getChannelFactory = (): ChannelFactory => {
+  if (inBrowser()) {
+    if (window['webview-proxy'] !== undefined) {
+      return webviewChannelFactory
+    } else {
+      return remoteChannelFactory
+    }
+  } else {
+    return electronChannelFactory
   }
 }
 
@@ -466,8 +493,7 @@ export const doExec = (block: HTMLElement, cmdline: string, execOptions) => new 
       terminal.element.classList.add('xterm-empty-row-heuristic')
       setTimeout(() => terminal.element.classList.remove('xterm-empty-row-heuristic'), 100)
 
-      const channelFactory = inBrowser() ? window['webview-proxy'] !== undefined ? webviewChannelFactory : remoteChannelFactory : electronChannelFactory
-      const ws: Channel = await getOrCreateChannel(cmdline, channelFactory, tab, terminal)
+      const ws: Channel = await getOrCreateChannel(cmdline, terminal, tab)
       resizer.ws = ws
 
       let currentScrollAsync

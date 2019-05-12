@@ -767,6 +767,7 @@ const updateInputAndMoveCaretToEOL = (input: HTMLInputElement, newValue: string)
 export const unlisten = (prompt: HTMLElement) => {
   if (prompt && !prompt.classList.contains('sidecar-header-input')) {
     prompt.onkeypress = null
+    eventBus.emit('/prompt/unlisten', prompt)
   }
 }
 export const popupListen = (text = getSidecar().querySelector('.sidecar-header-text'), previousCommand?: string) => {
@@ -799,7 +800,7 @@ export const listen = (prompt: HTMLInputElement) => {
     }
   }
 
-  prompt.onkeydown = async (event) => {
+  prompt.onkeydown = async (event: KeyboardEvent) => {
     const char = event.keyCode
 
     if (char === keys.UP || (char === keys.P && event.ctrlKey)) {
@@ -863,6 +864,8 @@ export const listen = (prompt: HTMLInputElement) => {
   }
 
   prompt.onpaste = paste
+
+  eventBus.emit('/prompt/listen', prompt)
 }
 
 export const installBlock = (parentNode: Node, currentBlock: HTMLElement, nextBlock: HTMLElement) => async () => {

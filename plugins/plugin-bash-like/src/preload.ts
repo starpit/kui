@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-import { PluginRequire, PreloadRegistration } from '@kui-shell/core/models/plugin'
+import { CommandRegistrar } from '@kui-shell/core/models/command'
+import { inBrowser, isHeadless } from '@kui-shell/core/core/capabilities'
 
 import { preload as registerCatchAll } from './lib/cmds/catchall'
+import { preload as registerTabCompletionProvider } from './lib/cmds/tab-completion'
 
 /**
  * This is the module
  *
  */
-const registration: PreloadRegistration = async (commandTree, prequire: PluginRequire, options?) => {
-  await registerCatchAll(commandTree)
+export default async (commandTree: CommandRegistrar) => {
+  await Promise.all([
+    registerCatchAll(commandTree),
+    inBrowser() || isHeadless() ? Promise.resolve() : registerTabCompletionProvider(commandTree)
+  ])
 }
-
-export default registration
