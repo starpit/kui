@@ -22,7 +22,7 @@ import Icons from '../spi/Icons'
 import Confirm from '../Views/Confirm'
 import Loading from '../Content/Loading'
 import Width from '../Views/Sidecar/width'
-import Watcher, { Height } from '../Views/Watcher'
+import WatchPane, { Height } from '../Views/WatchPane'
 import ScrollableTerminal, { TerminalOptions } from '../Views/Terminal/ScrollableTerminal'
 
 import '../../../web/css/static/split-pane.scss'
@@ -376,7 +376,7 @@ export default class TabContent extends React.PureComponent<Props, State> {
         className={this.state.primaryHeight === Height.NotSplit ? 'kui--watch-pane-closed' : undefined}
       >
         {this.leftRightSplit()}
-        <Watcher uuid={this.props.uuid} tab={this.state.tab} openWatchPane={this.openWatchPane.bind(this)} />
+        <WatchPane uuid={this.props.uuid} tab={this.state.tab} openWatchPane={this.openWatchPane.bind(this)} />
       </SplitPane>
     )
   }

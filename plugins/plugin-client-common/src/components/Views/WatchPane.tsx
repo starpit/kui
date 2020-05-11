@@ -29,12 +29,11 @@ import {
   CommandOptions
 } from '@kui-shell/core'
 
-import LivePaginatedTable from '../Content/Table/LivePaginatedTable'
-import { cwd as getCwd } from './Sidecar/BaseSidecar'
-import CircularBuffer, { BaseHistoryEntry } from './util/CircularBuffer'
+import CardSpi from '../spi/Card'
 import sameCommand from './util/same'
-
-import '../../../web/css/static/Watcher.scss'
+import { cwd as getCwd } from './Sidecar/BaseSidecar'
+import LivePaginatedTable from '../Content/Table/LivePaginatedTable'
+import CircularBuffer, { BaseHistoryEntry } from './util/CircularBuffer'
 
 /*
  * Height defines the primary height of
@@ -126,8 +125,9 @@ export default class WatchPane extends React.PureComponent<Props, State> {
     }
   }
 
+  /** Keep this in sync with WatchPane.scss $num-columns */
   private capacity() {
-    return 4
+    return 5
   }
 
   private prefixBreadcrumbs(idx: number) {
@@ -142,23 +142,25 @@ export default class WatchPane extends React.PureComponent<Props, State> {
             .fill(undefined)
             .map((_, idx) => {
               const history = this.state.history.peekAt(idx)
-              if (history) {
-                return (
-                  <div className="kui--watcher kui--screenshotable" data-pane-index={idx + 1} key={history.key}>
-                    <LivePaginatedTable
-                      tab={this.props.tab}
-                      repl={this.props.tab.REPL}
-                      response={history.response}
-                      asGrid
-                      toolbars
-                      paginate={false}
-                      prefixBreadcrumbs={this.prefixBreadcrumbs(idx)}
-                    />
-                  </div>
-                )
-              } else {
-                return <div className="kui--watcher" data-pane-id={idx} key={idx} />
-              }
+              return (
+                <CardSpi className="kui--card kui--screenshotable" key={history ? history.key : idx}>
+                  {history ? (
+                    <div className="kui--watcher" data-pane-index={idx + 1}>
+                      <LivePaginatedTable
+                        tab={this.props.tab}
+                        repl={this.props.tab.REPL}
+                        response={history.response}
+                        asGrid
+                        toolbars
+                        paginate={false}
+                        prefixBreadcrumbs={this.prefixBreadcrumbs(idx)}
+                      />
+                    </div>
+                  ) : (
+                    <div className="kui--watcher" data-pane-id={idx} />
+                  )}
+                </CardSpi>
+              )
             })}
       </div>
     )

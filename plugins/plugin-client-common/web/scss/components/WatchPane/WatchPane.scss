@@ -1,29 +1,39 @@
+$num-columns: 5; /* keep in sync with WatchPane.capacity() */
+$master-font-size: 0.825em;
 $cell-size: 0.875em;
-$spacing: 0.375em;
+$head-spacing: 0.5em;
+$body-spacing: 0.375em;
+$pane-gap: 5px;
 
-[kui-theme-style='dark'] .kui--watch-pane {
-  background-color: var(--color-table-border1);
-}
-
-.kui--watch-pane {
+[kui-theme-style] .kui--watch-pane {
   height: 100%;
 
   display: grid;
-  grid-template-columns: repeat(4, calc(100% / 4));
-  grid-column-gap: 1px;
-  background-color: var(--color-table-border3);
+  grid-template-columns: repeat($num-columns, 1fr);
+  grid-column-gap: $pane-gap;
+  background-color: var(--color-repl-background);
+  border: $pane-gap solid var(--color-repl-background);
 
   .kui--data-table-toolbar {
-    margin-bottom: $spacing;
+    margin-bottom: $head-spacing;
+  }
+
+  .kui--card {
+    background-color: var(--color-background-03);
+    padding: 0 $body-spacing;
   }
 
   .kui--watcher {
+    font-size: $master-font-size;
     overflow-x: auto;
-    background-color: var(--color-background-03);
-    padding: 0 $spacing;
+    display: flex;
+
+    & > div {
+      flex: 1;
+    }
 
     .kui--data-table-toolbar {
-      font-size: 0.875em;
+      font-size: $cell-size;
     }
 
     // copied from componenets/Table/badges.scss
@@ -33,8 +43,8 @@ $spacing: 0.375em;
         grid-gap: 1px;
         grid-template-columns: repeat(auto-fill, $cell-size) !important;
 
-        /* get overflow for grid; keep 8em in sync with TabContent Watching; 1.875em from Breadcrumb; 0.374 for spacing*/
-        max-height: calc(8em - 1.875em - 0.375em);
+        /* get overflow for grid; keep 8em in sync with TabContent Watching; 1.875em from Breadcrumb; 0.375 for $body-spacing; 0.5 for $head-spacing */
+        max-height: calc(8em - 1.875em + 0.5em + 0.375em);
         overflow-y: auto;
 
         [data-tag='badge'] [data-tag='badge-circle'] {
