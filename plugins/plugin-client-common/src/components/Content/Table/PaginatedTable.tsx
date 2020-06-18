@@ -229,7 +229,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
       return (
         <div className="kui--screenshotable flex-fill">
           {this.topToolbar()}
-          <div className="kui--data-table-wrapper">{this.table()}</div>
+          <div className="kui--data-table-wrapper kui--data-table-as-grid">{this.table()}</div>
         </div>
       )
     } else {

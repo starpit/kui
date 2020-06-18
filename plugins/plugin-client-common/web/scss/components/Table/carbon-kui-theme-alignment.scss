@@ -23,3 +23,9 @@
 @import './badges';
 @import './tables', './kui-tables';
 @import './Toolbar.scss';
+
+.kui--data-table-wrapper {
+  .pf-c-card__body {
+    padding: 0;
+  }
+}
