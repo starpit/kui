@@ -20,7 +20,7 @@ import * as React from 'react'
 import { DataTable, DataTableHeader, TableContainer, Table } from 'carbon-components-react'
 
 import sortRow from './sort'
-// import Card from '../../spi/Card'
+import Card from '../../spi/Card'
 import renderBody from './TableBody'
 import renderHeader from './TableHeader'
 import Toolbar, { Props as ToolbarProps } from './Toolbar'
@@ -152,8 +152,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
 
   private grid(visibleRows: NamedDataTableRow[]) {
     return (
-      <div className="kui--data-table-wrapper kui--data-table-as-grid kui--screenshotable">
-        {this.topToolbar()}
+      <div className="kui--data-table-as-grid">
         <Grid
           tab={this.props.tab}
           repl={this.props.repl}
@@ -180,8 +179,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
 
     // the view
     const dataTable = (visibleRows: NamedDataTableRow[], offset = 0) => (
-      <div className="kui--data-table-wrapper kui--screenshotable">
-        {this.topToolbar()}
+      <React.Fragment>
         <DataTable
           rows={visibleRows}
           headers={headers}
@@ -212,7 +210,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
           )}
         />
         {this.bottomToolbar()}
-      </div>
+      </React.Fragment>
     )
 
     const paginated = this.isPaginated()
@@ -227,8 +225,19 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
   public render() {
     if (!this.state) {
       return <div className="oops">Internal Error</div>
+    } else if (this.props.asGrid) {
+      return (
+        <div className="kui--screenshotable flex-fill">
+          {this.topToolbar()}
+          <div className="kui--data-table-wrapper">{this.table()}</div>
+        </div>
+      )
+    } else {
+      return (
+        <Card header={this.topToolbar()} className="kui--data-table-wrapper kui--screenshotable">
+          {this.table()}
+        </Card>
+      )
     }
-
-    return this.table()
   }
 }

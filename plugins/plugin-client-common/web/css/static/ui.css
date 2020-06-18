@@ -483,6 +483,9 @@ pre.monospace {
     margin-bottom: 1ex;
     display: inline-flex;
   }
+  .bottom-pad {
+    margin-bottom: 0.5em;
+  }
   .tiny-top-pad {
     margin-top: 0.125em;
   }

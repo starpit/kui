@@ -1,7 +1,7 @@
 @import '../common/narrow-window';
 @import '../common/stippling';
 
-$grid-cell-size: 1.375em;
+$grid-cell-size: 1.5em;
 
 .bx--data-table,
 .kui--table-like {
@@ -47,9 +47,9 @@ $grid-cell-size: 1.375em;
   .kui--data-table-as-grid {
     .bx--data-table {
       display: grid;
-      grid-column-gap: 1px;
-      grid-row-gap: 1px;
-      padding: 0.5em 0;
+      grid-column-gap: 6px;
+      grid-row-gap: 6px;
+      padding: 0 0 0.5em;
 
       [data-tag='badge'] [data-tag='badge-circle'] {
         display: flex;
