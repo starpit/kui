@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
-@import './pagination', './tables', './buttons', './select', './badges';
+/** carbon styling */
+@import '~carbon-components/scss/components/data-table/_data-table-core.scss';
 
-@import './kui-tables';
+/* @import './pagination'; */
+
+@import './common';
+@import './badges';
+@import './tables', './kui-tables';
+@import './Toolbar.scss';

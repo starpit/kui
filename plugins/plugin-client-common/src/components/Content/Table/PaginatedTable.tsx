@@ -20,6 +20,7 @@ import * as React from 'react'
 import { DataTable, DataTableHeader, TableContainer, Table } from 'carbon-components-react'
 
 import sortRow from './sort'
+// import Card from '../../spi/Card'
 import renderBody from './TableBody'
 import renderHeader from './TableHeader'
 import Toolbar, { Props as ToolbarProps } from './Toolbar'
@@ -27,17 +28,8 @@ import Grid, { findGridableColumn } from './Grid'
 import kui2carbon, { NamedDataTableRow } from './kui2carbon'
 import { BreadcrumbView } from '../../spi/Breadcrumb'
 
-/** carbon styling */
-import 'carbon-components/scss/components/data-table/_data-table-core.scss'
-
-/** hack (see comments in file) */
-import '../../../../web/scss/components/Table/hack-select.scss'
-
 /** import the kui theme alignment */
 import '../../../../web/scss/components/Table/carbon-kui-theme-alignment.scss'
-
-import '../../../../web/css/static/ToolbarButton.scss'
-import '../../../../web/scss/components/Table/Toolbar.scss'
 
 interface PaginationConfiguration {
   pageSize?: number
@@ -181,11 +173,8 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
     }, {} as Record<string, boolean>)
   }
 
-  public render() {
-    if (!this.state) {
-      return <div className="oops">Internal Error</div>
-    }
-
+  /** Render the table/grid portion of the UI */
+  protected table() {
     const { tab, repl, response } = this.props
     const { headers, rows, page } = this.state
 
@@ -233,5 +222,13 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
           !paginated ? rows : rows.slice((page - 1) * this.state.pageSize, page * this.state.pageSize),
           !paginated ? 0 : (page - 1) * this.state.pageSize
         )
+  }
+
+  public render() {
+    if (!this.state) {
+      return <div className="oops">Internal Error</div>
+    }
+
+    return this.table()
   }
 }

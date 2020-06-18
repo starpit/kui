@@ -1,12 +1,9 @@
+@import '../../../css/static/ToolbarButton.scss';
+
 $toolbar-height: 1.875em;
 
 .bx--data-table-container.kui--data-table-container-with-toolbars.kui--data-table-container-with-title {
   padding-top: 0;
-}
-
-.kui--data-table-wrapper {
-  /* so that captured screenshots have some padding away from the breadcrumbs */
-  padding: 0 0.1875em;
 }
 
 .kui--toolbar-button-with-icon {
