@@ -95,25 +95,11 @@ div.kui--scrollback:nth-of-type(2) {
 div.kui--scrollback:nth-of-type(3) {
   grid-area: T3;
 }
-
-/** grid assignments for PINNED scrollbacks */
-span.kui--scrollback[data-has-pinned]:nth-of-type(1) {
-  grid-area: P1;
+div.kui--scrollback:nth-of-type(4) {
+  grid-area: T4;
 }
-span.kui--scrollback[data-has-pinned]:nth-of-type(2) {
-  grid-area: P2;
-}
-span.kui--scrollback[data-has-pinned]:nth-of-type(3) {
-  grid-area: P3;
-}
-span.kui--scrollback[data-has-pinned]:nth-of-type(4) {
-  grid-area: P4;
-}
-
-/** styling for "blank" pin areas */
-span.kui--scrollback.kui--pinned-blank {
-  background-color: var(--color-repl-background);
-  outline: 1px dashed var(--color-repl-background);
+div.kui--scrollback:nth-of-type(5) {
+  grid-area: T5;
 }
 
 /** special styling of table-as-grid within pinned scrollbacks */
@@ -146,157 +132,97 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
 }
 
 /** Default Case: no splits, no pinned scrollbacks */
-.kui--terminal-split-container[data-split-count='1'] {
-  grid-template-areas: 'T1';
+.repl:not(.sidecar-visible),
+.repl.sidecar-visible {
+  .kui--terminal-split-container[data-split-count='1'] {
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: repeat(1, 1fr);
+    grid-template-areas: 'T1';
+  }
+}
+
+/** distinguish the last split */
+@mixin special-last {
+  div.kui--scrollback:not(:last-of-type) {
+    background-color: var(--color-base02);
+  }
 }
 
 /**
- * Case: sidecar closed; here we maintain a 3:1 ratio between splits
-   and pinned areas, in terms of height.
+ * Case: sidecar closed
  *
  */
 .repl:not(.sidecar-visible) .kui--terminal-split-container {
-  &[data-split-count='1'][data-pinned-count] {
-    grid-template-areas:
-      'T1 T1 T1'
-      'T1 T1 T1'
-      'T1 T1 T1'
-      'T1 T1 T1'
-      'P1 P2 P3';
-    grid-template-rows: repeat(5, 1fr);
-    grid-template-columns: repeat(3, 1fr);
-  }
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
 
+  /* sidecar closed, two terminals */
   &[data-split-count='2'] {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-areas: 'T1 T2';
-
-    &[data-pinned-count] {
-      grid-template-areas:
-        'T1 T1 T1 T2 T2 T2'
-        'T1 T1 T1 T2 T2 T2'
-        'T1 T1 T1 T2 T2 T2'
-        'T1 T1 T1 T2 T2 T2'
-        'P1 P1 P2 P2 P3 P3';
-      grid-template-rows: repeat(5, 1fr);
-      grid-template-columns: repeat(6, 1fr);
-    }
+    grid-template-areas:
+      'T1 T2'
+      'T1 T2';
   }
 
+  /* sidecar closed, three terminals */
   &[data-split-count='3'] {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-areas: 'T1 T2 T3';
+    @include special-last;
+    grid-template-areas:
+      'T1 T3'
+      'T2 T3';
+  }
 
-    &[data-pinned-count] {
-      grid-template-areas:
-        'T1 T2 T3'
-        'T1 T2 T3'
-        'T1 T2 T3'
-        'T1 T2 T3'
-        'P1 P2 P3';
-      grid-template-rows: repeat(5, 1fr);
-      grid-template-columns: repeat(3, 1fr);
-    }
+  /* sidecar closed, four terminals */
+  &[data-split-count='4'] {
+    @include special-last;
+    grid-template-areas:
+      'T1 T2 T3'
+      'T4 T4 T4';
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* sidecar closed, five terminals */
+  &[data-split-count='5'] {
+    @include special-last;
+    grid-template-areas:
+      'T1 T2 T3'
+      'T4 T5 T5';
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /** 
- * Case: sidecar open; here we maintain a 4:1 ratio between splits and
- * pinned, in terms of height.
+ * Case: sidecar open
  *
  */
 .repl.sidecar-visible .kui--terminal-split-container {
-  /* no point in showing blanks 3 and 4, that would just waste precious vertical real estate */
-  &[data-pinned-count='1'] {
-    span.kui--scrollback.kui--pinned-blank {
-      &:nth-of-type(2),
-      &:nth-of-type(3) {
-        display: none;
-      }
-    }
-  }
-  &[data-pinned-count='2'] {
-    span.kui--scrollback.kui--pinned-blank {
-      &:nth-of-type(3) {
-        display: none;
-      }
-    }
-  }
-
   grid-template-columns: repeat(1, 1fr);
-
-  /* sidecar open, one terminal */
-  &[data-split-count='1'] {
-    &[data-pinned-count='1'] {
-      grid-template-areas:
-        'T1'
-        'T1'
-        'T1'
-        'T1'
-        'P1';
-      grid-template-rows: repeat(5, 1fr);
-    }
-    &[data-pinned-count='2'] {
-      grid-template-areas:
-        'T1 T1'
-        'T1 T1'
-        'T1 T1'
-        'T1 T1'
-        'P1 P2';
-      grid-template-rows: repeat(5, 1fr);
-      grid-template-columns: repeat(2, 1fr);
-    }
-    &[data-pinned-count='3'] {
-      grid-template-areas:
-        'T1 T1'
-        'T1 T1'
-        'T1 T1'
-        'P3 P3'
-        'P1 P2';
-      grid-template-rows: repeat(5, 1fr);
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
 
   /* sidecar open, two terminals */
   &[data-split-count='2'] {
     grid-template-rows: repeat(2, 1fr);
     grid-template-areas: 'T1' 'T2';
+  }
 
-    &[data-pinned-count='1'] {
-      grid-template-areas:
-        'T1 T1'
-        'T1 T1'
-        'T2 T2'
-        'T2 T2'
-        'P1 P1';
-      grid-template-rows: repeat(5, 1fr);
-      grid-template-columns: repeat(2, 1fr);
-    }
-    &[data-pinned-count='2'] {
-      grid-template-areas:
-        'T1 T1'
-        'T1 T1'
-        'T2 T2'
-        'T2 T2'
-        'P1 P2';
-      grid-template-rows: repeat(5, 1fr);
-      grid-template-columns: repeat(2, 1fr);
-    }
-    &[data-pinned-count='3'] {
-      grid-template-areas:
-        'T1 T1'
-        'T1 T1'
-        'T1 T1'
-        'T2 T2'
-        'T2 T2'
-        'T2 T2'
-        'P3 P3'
-        'P3 P3'
-        'P1 P2'
-        'P1 P2';
-      grid-template-rows: repeat(10, 1fr);
-      grid-template-columns: repeat(2, 1fr);
-    }
+  /* sidecar open, three terminals */
+  &[data-split-count='3'] {
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-areas: 'T1' 'T2' 'T3';
+    @include special-last;
+  }
+
+  /* sidecar open, four terminals */
+  &[data-split-count='4'] {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-areas: 'T1 T2' 'T3 T3' 'T4 T4';
+    @include special-last;
+  }
+
+  /* sidecar open, five terminals */
+  &[data-split-count='5'] {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-areas: 'T1 T2' 'T3 T4' 'T5 T5';
+    @include special-last;
   }
 }

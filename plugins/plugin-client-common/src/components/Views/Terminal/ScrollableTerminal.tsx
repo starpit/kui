@@ -55,7 +55,7 @@ const strings = i18n('plugin-client-common')
 type Cleaner = () => void
 
 /** Hard limit on the number of Terminal splits */
-const MAX_TERMINALS = 2
+const MAX_TERMINALS = 5
 
 /** Hard limit on the number of Pinned splits */
 const MAX_PINNED = 3

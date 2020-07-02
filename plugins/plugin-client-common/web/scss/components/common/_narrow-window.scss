@@ -35,6 +35,19 @@ $medium-width-upper-bound: 68rem;
     @content;
   }
 
+  .kui--terminal-split-container {
+    &[data-split-count='6'],
+    &[data-split-count='5'] .kui--scrollback:not(:last-of-type),
+    &[data-split-count='4'] .kui--scrollback:not(:last-of-type):not(:nth-last-of-type(2)),
+    &[data-split-count='3'] .kui--scrollback:not(:last-of-type),
+    &[data-split-count='2'] .kui--scrollback {
+      &,
+      .kui--data-table-wrapper {
+        @content;
+      }
+    }
+  }
+
   .page[data-zoom='6'],
   .page[data-zoom='7'],
   .page[data-zoom='8'],
