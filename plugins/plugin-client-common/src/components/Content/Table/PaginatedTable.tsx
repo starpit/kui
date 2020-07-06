@@ -22,6 +22,7 @@ import { DataTable, DataTableHeader, TableContainer, Table } from 'carbon-compon
 import sortRow from './sort'
 import Card from '../../spi/Card'
 import renderBody from './TableBody'
+import { KuiContext } from '../../../'
 import renderHeader from './TableHeader'
 import Toolbar, { Props as ToolbarProps } from './Toolbar'
 import Grid, { findGridableColumn } from './Grid'
@@ -124,12 +125,12 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
     }
   }
 
-  private topToolbar() {
+  private topToolbar(lightweightTables = false) {
     // 1) If we started as a table, and are now a grid, then show
     // "Status Grid", otherwise:
     // 2) only for client w/o disableTableTitle, show a breadcrumb
     const breadcrumbs =
-      !this.props.asGrid && this.state.asGrid
+      !lightweightTables && !this.props.asGrid && this.state.asGrid
         ? [{ label: strings('Status Grid') }]
         : !this.props.asGrid && !this.props.title
         ? []
@@ -152,14 +153,14 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
      */
   }
 
-  private bottomToolbar() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private bottomToolbar(lightweightTables = false) {
     const gridableColumn = findGridableColumn(this.props.response)
 
     return (
       this.props.toolbars &&
       (this.isPaginated() || gridableColumn >= 0) && (
         <Toolbar
-          framed
           className="kui--data-table-toolbar-bottom"
           asGrid={this.state.asGrid}
           gridableColumn={gridableColumn}
@@ -238,12 +239,12 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
     )
   }
 
-  private content(includeToolbars = false) {
+  private content(includeToolbars = false, lightweightTables = false) {
     return (
       <React.Fragment>
-        {includeToolbars && this.topToolbar()}
+        {includeToolbars && this.topToolbar(lightweightTables)}
         {this.state.asGrid ? this.grid(this.state.rows) : this.table()}
-        {includeToolbars && this.bottomToolbar()}
+        {includeToolbars && this.bottomToolbar(lightweightTables)}
       </React.Fragment>
     )
   }
@@ -252,14 +253,25 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
     if (!this.state) {
       return <div className="oops">Internal Error</div>
     } else {
-      const className =
-        'kui--data-table-wrapper kui--screenshotable' + (this.state.asGrid ? ' kui--data-table-as-grid' : '')
-      return this.props.response.style === TableStyle.Light || this.props.asGrid ? (
-        <div className={className}>{this.content(true)}</div>
-      ) : (
-        <Card header={this.topToolbar()} footer={this.bottomToolbar()} className={className}>
-          {this.content()}
-        </Card>
+      return (
+        <KuiContext.Consumer>
+          {config => {
+            const className =
+              'kui--data-table-wrapper kui--screenshotable' +
+              (this.state.asGrid ? ' kui--data-table-as-grid' : '') +
+              (config.lightweightTables ? ' kui--data-table-wrapper-lightweight' : '')
+
+            if (this.props.response.style === TableStyle.Light) {
+              return <div className={className}>{this.content(true, config.lightweightTables)}</div>
+            } else {
+              return (
+                <Card header={this.topToolbar()} footer={this.bottomToolbar()} className={className}>
+                  {this.content(false, config.lightweightTables)}
+                </Card>
+              )
+            }
+          }}
+        </KuiContext.Consumer>
       )
     }
   }

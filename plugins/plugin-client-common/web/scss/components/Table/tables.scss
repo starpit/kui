@@ -69,7 +69,7 @@ body .bx--data-table-container {
 
 body .bx--data-table {
   th {
-    /* font-weight: 300; */
+    padding-right: 0; /* sorting */
     vertical-align: middle;
   }
 
@@ -149,8 +149,8 @@ body[kui-theme-style] .kui--data-table-wrapper {
   }
   .kui--card-footer {
     border-top: 1px solid var(--color-base03);
-    padding-top: calc(var(--pf-c-card--child--PaddingBottom) / 4);
-    padding-bottom: calc(var(--pf-c-card--child--PaddingBottom) / 4);
+    padding-top: 0;
+    padding-bottom: 0;
   }
   &:not(.kui--data-table-as-grid) {
     .kui--card-body {

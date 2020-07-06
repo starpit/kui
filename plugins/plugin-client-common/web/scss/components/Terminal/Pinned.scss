@@ -141,10 +141,17 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
   }
 }
 
-/** distinguish the last split */
-@mixin special-last {
-  div.kui--scrollback:not(:last-of-type) {
-    background-color: var(--color-base02);
+/** distinguish the mini splits */
+.kui--scrollback[data-is-minisplit] {
+  background-color: var(--color-base02);
+  box-shadow: 1px 1px var(--color-base01);
+  border: 1px dotted var(--color-base03);
+  display: flex;
+  flex-direction: column;
+
+  .repl-block.repl-active {
+    flex: 1;
+    justify-content: flex-end;
   }
 }
 
@@ -165,15 +172,14 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
 
   /* sidecar closed, three terminals */
   &[data-split-count='3'] {
-    @include special-last;
     grid-template-areas:
-      'T1 T3'
-      'T2 T3';
+      'T1 T3 T3'
+      'T2 T3 T3';
+    grid-template-columns: repeat(3, 1fr);
   }
 
   /* sidecar closed, four terminals */
   &[data-split-count='4'] {
-    @include special-last;
     grid-template-areas:
       'T1 T2 T3'
       'T4 T4 T4';
@@ -182,7 +188,6 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
 
   /* sidecar closed, five terminals */
   &[data-split-count='5'] {
-    @include special-last;
     grid-template-areas:
       'T1 T2 T3'
       'T4 T5 T5';
@@ -207,7 +212,6 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
   &[data-split-count='3'] {
     grid-template-rows: repeat(3, 1fr);
     grid-template-areas: 'T1' 'T2' 'T3';
-    @include special-last;
   }
 
   /* sidecar open, four terminals */
@@ -215,7 +219,6 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(3, 1fr);
     grid-template-areas: 'T1 T2' 'T3 T3' 'T4 T4';
-    @include special-last;
   }
 
   /* sidecar open, five terminals */
@@ -223,6 +226,5 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(3, 1fr);
     grid-template-areas: 'T1 T2' 'T3 T4' 'T5 T5';
-    @include special-last;
   }
 }

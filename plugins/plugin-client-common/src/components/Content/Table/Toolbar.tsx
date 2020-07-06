@@ -152,7 +152,7 @@ export default class Toolbar extends React.PureComponent<Props> {
     const className = 'kui--data-table-toolbar' + (this.props.className ? ` ${this.props.className}` : '')
 
     return (
-      <div className={className} data-frame={this.props.framed}>
+      <div className={className} data-frame={this.props.framed || undefined}>
         {this.breadcrumbs()}
         {this.buttons()}
         {this.filler()}

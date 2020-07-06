@@ -31,6 +31,7 @@ body[kui-theme-style] .kui--toolbar-alert.bx--toast-notification {
 
 body[kui-theme-style] .kui--data-table-toolbar {
   display: flex;
+  height: 2rem;
 
   nav[aria-label='Breadcrumb'] {
     overflow-x: unset;
@@ -40,7 +41,7 @@ body[kui-theme-style] .kui--data-table-toolbar {
     display: flex;
     align-items: center;
     flex: 1;
-    height: 2.1875rem;
+    height: 2rem;
   }
 
   .kui--toolbar-button-with-icon {

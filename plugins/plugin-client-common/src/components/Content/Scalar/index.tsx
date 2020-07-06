@@ -40,6 +40,7 @@ interface Props {
   tab: KuiTab
   response: ScalarResponse | Error
   isPinned: boolean
+  isPartOfMiniSplit: boolean
   onRender: (hasContent: boolean) => void
 }
 
@@ -89,7 +90,7 @@ export default class Scalar extends React.PureComponent<Props, State> {
         )
       } else if (isTable(response)) {
         const renderBottomToolbar = !this.props.isPinned
-        const renderGrid = this.props.isPinned
+        const renderGrid = this.props.isPinned || this.props.isPartOfMiniSplit
         return renderTable(tab, tab.REPL, response, undefined, renderBottomToolbar, renderGrid, this.props.onRender)
         // ^^^ Notes: typescript doesn't like this, and i don't know why:
         // "is not assignable to type IntrinsicAttributes..."

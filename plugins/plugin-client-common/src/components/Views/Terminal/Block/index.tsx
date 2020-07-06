@@ -23,6 +23,7 @@ import { BlockModel, isActive, isEmpty, isFinished, isProcessing, isAnnouncement
 
 export type BlockViewTraits = {
   isPinned?: boolean
+  isPartOfMiniSplit?: boolean
 }
 
 type Props = InputOptions & {
@@ -78,6 +79,7 @@ export default class Block extends React.PureComponent<Props, State> {
           model={this.props.model}
           onRender={this.props.onOutputRender && (() => this.props.onOutputRender(this.props.idx))}
           isPinned={this.props.isPinned}
+          isPartOfMiniSplit={this.props.isPartOfMiniSplit}
         />
       )
     }

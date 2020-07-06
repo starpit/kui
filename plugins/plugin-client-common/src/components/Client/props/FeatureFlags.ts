@@ -38,6 +38,9 @@ type FeatureFlags = {
    *
    */
   showWelcomeMax?: number
+
+  /** [Optional] Should Tables NOT be presented within a Card/Tile UI? */
+  lightweightTables?: boolean
 }
 
 export default FeatureFlags

@@ -682,14 +682,17 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
           data-split-count={nTerminals}
           data-pinned-count={nPinned === 0 ? undefined : nPinned}
         >
-          {this.state.splits.map(scrollback => {
+          {this.state.splits.map((scrollback, sbidx) => {
             const tab = this.tabFor(scrollback)
             const hasPinned = !!scrollback.blocks.find(_ => _.isPinned)
+            const isMiniSplit = (this.state.splits.length > 2 && sbidx < this.state.splits.length - 1) || undefined
+
             return React.createElement(
               hasPinned ? 'span' : 'div',
               {
                 className: 'kui--scrollback scrollable scrollable-auto',
                 'data-has-pinned': hasPinned || undefined,
+                'data-is-minisplit': isMiniSplit,
                 key: tab.uuid,
                 'data-scrollback-id': tab.uuid,
                 ref: ref => this.tabRefFor(scrollback, ref),
@@ -697,7 +700,7 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
               },
               scrollback.blocks.map((_, idx) => (
                 <Block
-                  key={hasUUID(_) ? _.execUUID : idx}
+                  key={(hasUUID(_) ? _.execUUID : idx) + `-isPartOfMiniSplit=${isMiniSplit}`}
                   idx={idx}
                   model={_}
                   uuid={scrollback.uuid}
@@ -712,6 +715,7 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
                   unPin={this.unPinTheBlock.bind(this, scrollback.uuid, _)}
                   willLoseFocus={() => this.doFocus(scrollback)}
                   isPinned={_.isPinned}
+                  isPartOfMiniSplit={isMiniSplit}
                   ref={c => {
                     if (isActive(_)) {
                       // grab a ref to the active block, to help us maintain focus

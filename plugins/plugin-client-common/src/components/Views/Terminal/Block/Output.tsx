@@ -136,6 +136,7 @@ export default class Output extends React.PureComponent<Props, State> {
               tab={this.props.tab}
               response={part}
               isPinned={this.props.isPinned}
+              isPartOfMiniSplit={this.props.isPartOfMiniSplit}
               onRender={this.onRender.bind(this)}
             />
           ))}
@@ -168,6 +169,7 @@ export default class Output extends React.PureComponent<Props, State> {
               tab={this.props.tab}
               response={this.props.model.response}
               isPinned={this.props.isPinned}
+              isPartOfMiniSplit={this.props.isPartOfMiniSplit}
               onRender={this.onRender.bind(this)}
             />
           )}
