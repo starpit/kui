@@ -81,6 +81,7 @@ export type Props<T extends KuiTable = KuiTable> = PaginationConfiguration & {
 export type State = ToolbarProps & {
   headers: DataTableHeader[]
   rows: NamedDataTableRow[]
+  footer: string[]
 
   page: number
   pageSize: number
@@ -114,11 +115,12 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
 
     try {
       // assemble the data model
-      const { headers, rows } = kui2carbon(this.props.response)
+      const { headers, rows, footer } = kui2carbon(this.props.response)
 
       this.state = {
         headers,
         rows,
+        footer,
         asGrid: this.props.asGrid && findGridableColumn(this.props.response) >= 0,
         page: 1,
         pageSize: this.defaultPageSize
@@ -154,6 +156,12 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
      * (this.props.paginate === true || this.state.rows.length > this.props.paginate)
      * )
      */
+  }
+
+  private bottomStream() {
+    if (this.state.footer) {
+      return <Toolbar stream={this.state.footer.slice(-2)} />
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -255,6 +263,15 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
     )
   }
 
+  private bottom(lightweightTables: boolean) {
+    return (
+      <React.Fragment>
+        {this.bottomStream()}
+        {this.bottomToolbar(lightweightTables)}
+      </React.Fragment>
+    )
+  }
+
   public render() {
     if (!this.state) {
       return <div className="oops">Internal Error</div>
@@ -271,7 +288,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
               return <div className={className}>{this.content(true, config.lightweightTables)}</div>
             } else {
               return (
-                <Card header={this.topToolbar()} footer={this.bottomToolbar()} className={className}>
+                <Card header={this.topToolbar()} footer={this.bottom(config.lightweightTables)} className={className}>
                   {this.content(false, config.lightweightTables)}
                 </Card>
               )
