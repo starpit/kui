@@ -21,71 +21,7 @@ $inset-h: 1rem;
 $breadcrumb-height: 2.5rem;
 $table-grid-cell-size: 1.25rem;
 
-/** special styling of the whole scrollback, if it is pinned */
-.kui--scrollback[data-has-pinned='true'] {
-  background-color: var(--color-base02);
-  padding: 0;
-
-  /* css magic for inner scrolling (see below for more magic rules) */
-  display: flex;
-  overflow: hidden;
-}
-
-/** special styling of input area for pinned scrollbacks */
-.repl-block[data-pinned] {
-  margin: 0;
-  padding: 0;
-  position: relative;
-
-  /* css magic for inner scrolling (see above and below for more magic rules) */
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-
-  .repl-output,
-  .repl-result {
-    /* css magic for inner scrolling (see above and below for more magic rules) */
-    flex: 1;
-  }
-
-  /* unset the font-size of kui--hero-text in ui.css */
-  .repl-output .kui--hero-text {
-    font-size: unset;
-  }
-
-  .repl-input {
-    position: absolute;
-    top: calc((#{$breadcrumb-height} - 0.875em - 6px) / 2);
-    right: 2px;
-  }
-
-  .kui--data-table-wrapper {
-    padding: 0;
-
-    /* css magic for inner scrolling (see above and below for more magic rules) */
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .kui--data-table-toolbar-filler {
-    display: none;
-  }
-  .kui--data-table-toolbar-top {
-    padding: 0 $inset-h;
-  }
-
-  nav[aria-label='Breadcrumb']:not(:empty) {
-    height: $breadcrumb-height;
-  }
-
-  nav[aria-label='Breadcrumb'],
-  .bx--breadcrumb {
-    /* avoid overflow due to long breadcrumbs */
-    overflow: hidden;
-  }
-}
-
-/** grid assignments for NOT-PINNED scrollbacks */
+/** grid assignments for mini-splits */
 div.kui--scrollback:nth-of-type(1) {
   grid-area: T1;
 }
@@ -102,7 +38,7 @@ div.kui--scrollback:nth-of-type(5) {
   grid-area: T5;
 }
 
-/** special styling of table-as-grid within pinned scrollbacks */
+/** special styling of table-as-grid within mini-split scrollbacks */
 span.kui--scrollback[data-has-pinned] [data-table-watching] {
   display: flex;
   flex: 1;
@@ -149,10 +85,58 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
   display: flex;
   flex-direction: column;
 
-  .repl-block.repl-active {
+  .repl-block {
+    &:not(.repl-active) {
+      margin: 0;
+      flex: 1;
+
+      &:not(:nth-last-child(2)) {
+        display: none;
+      }
+    }
+    .repl-output {
+      flex: 1;
+      padding-right: 1rem;
+
+      .repl-result {
+        flex: 1;
+        display: flex;
+
+        .kui--data-table-as-grid {
+          /* grids should wrap, rather than be rectilinear */
+          grid-template-columns: repeat(auto-fill, minmax(1.25rem, auto)) !important;
+        }
+      }
+
+      .kui--card {
+        flex: 1;
+        margin-top: 0.5rem;
+      }
+      .kui--card-body {
+        position: relative;
+        .kui--data-table-as-grid {
+          position: absolute;
+          padding-right: 1rem;
+          width: calc(100% - 1rem);
+          max-height: calc(100% - 2rem);
+          overflow: auto;
+        }
+        .kui--data-table-container {
+          position: absolute;
+          overflow: auto;
+          max-height: 100%;
+        }
+      }
+      div[data-table-watching='true'] {
+        flex: 1;
+        display: flex;
+      }
+    }
+  }
+  /*.repl-block + .repl-block.repl-active {
     flex: 1;
     justify-content: flex-end;
-  }
+  }*/
 }
 
 /**

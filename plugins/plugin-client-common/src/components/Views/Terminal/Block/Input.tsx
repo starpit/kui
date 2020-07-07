@@ -141,7 +141,9 @@ export abstract class InputProvider<S extends State = State> extends React.PureC
       !this.props.noPromptContext && (
         <KuiContext.Consumer>
           {config =>
-            !config.noPromptContext && this.props.model && <span className="repl-context">{this.props.model.cwd}</span>
+            !config.noPromptContext &&
+            !this.props.isPartOfMiniSplit &&
+            this.props.model && <span className="repl-context">{this.props.model.cwd}</span>
           }
         </KuiContext.Consumer>
       )
@@ -154,7 +156,9 @@ export abstract class InputProvider<S extends State = State> extends React.PureC
     // another option: &#x276f; "heavy right-pointing angle quotation mark ornament"
     return (
       <KuiContext.Consumer>
-        {config => <span className="repl-prompt-righty">{config.prompt || '/'}</span>}
+        {config => (
+          <span className="repl-prompt-righty">{config.prompt || this.props.isPartOfMiniSplit ? '\u276f' : '/'}</span>
+        )}
       </KuiContext.Consumer>
     )
   }

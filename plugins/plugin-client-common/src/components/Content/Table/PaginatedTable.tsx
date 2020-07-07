@@ -208,7 +208,8 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
           render={renderOpts => (
             <TableContainer
               className={
-                (this.props.title ? 'kui--data-table-container-with-toolbars' : '') +
+                'kui--data-table-container' +
+                (this.props.title ? ' kui--data-table-container-with-toolbars' : '') +
                 (this.props.response.title || this.props.response.breadcrumbs
                   ? ' kui--data-table-container-with-title'
                   : '')
