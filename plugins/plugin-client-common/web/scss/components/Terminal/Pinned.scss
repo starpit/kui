@@ -85,9 +85,18 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
   display: flex;
   flex-direction: column;
 
+  .repl-block + .repl-block.repl-active {
+    margin-top: 0.5rem;
+  }
+
+  .kui--repl-block-timestamp {
+    display: none;
+  }
+
   .repl-block {
-    &:not(.repl-active) {
-      margin: 0;
+    margin: 0;
+
+    &:not(.repl-active):not(.processing) {
       flex: 1;
 
       &:not(:nth-last-child(2)) {
