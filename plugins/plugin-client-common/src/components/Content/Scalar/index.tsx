@@ -80,7 +80,9 @@ export default class Scalar extends React.PureComponent<Props, State> {
     const { tab, response } = this.props
 
     try {
-      if (typeof response === 'number' || typeof response === 'string' || typeof response === 'boolean') {
+      if (typeof response === 'boolean') {
+        return <React.Fragment />
+      } else if (typeof response === 'number' || typeof response === 'string') {
         return <pre>{response}</pre>
       } else if (isRadioTable(response)) {
         return (
@@ -89,8 +91,8 @@ export default class Scalar extends React.PureComponent<Props, State> {
           </KuiContext.Consumer>
         )
       } else if (isTable(response)) {
-        const renderBottomToolbar = !this.props.isPinned
-        const renderGrid = this.props.isPinned || this.props.isPartOfMiniSplit
+        const renderBottomToolbar = this.props.isPartOfMiniSplit
+        const renderGrid = !this.props.isPinned && this.props.isPartOfMiniSplit
         return renderTable(tab, tab.REPL, response, undefined, renderBottomToolbar, renderGrid, this.props.onRender)
         // ^^^ Notes: typescript doesn't like this, and i don't know why:
         // "is not assignable to type IntrinsicAttributes..."

@@ -150,7 +150,7 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
           max-height: 100%;
         }
       }
-      div[data-table-watching='true'] {
+      div[data-table-watching] {
         flex: 1;
         display: flex;
       }
