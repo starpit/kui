@@ -53,8 +53,7 @@ type CancelledBlock = WithState<BlockState.Cancelled> & WithCWD & WithCommand & 
 export type FinishedBlock = OkBlock | ErrorBlock | CancelledBlock | EmptyBlock
 
 // A Block is one of the canonical types
-export type BlockModel = (ProcessingBlock | FinishedBlock | CancelledBlock | ActiveBlock | AnnouncementBlock) &
-  Partial<withPin>
+export type BlockModel = ProcessingBlock | FinishedBlock | CancelledBlock | ActiveBlock | AnnouncementBlock
 export default BlockModel
 
 /** Capture the current working directory */
