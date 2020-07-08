@@ -167,7 +167,7 @@ export default class TabContent extends React.PureComponent<Props, State> {
           })
           .catch(TabContent.onSessionInitError.bind(undefined, props.uuid))
 
-        TabContent.hackResizer(state)
+        // TabContent.hackResizer(state)
 
         return {
           sessionInit: 'InProgress'
@@ -181,7 +181,7 @@ export default class TabContent extends React.PureComponent<Props, State> {
   }
 
   /** Hmm, SplitPane doesn't yet allow for styling of the Resizer */
-  private static hackResizer(state: State) {
+  /* private static hackResizer(state: State) {
     const resizer = state.splitPaneImpl['splitPane'].querySelector('.Resizer')
     const a = document.createElement('span')
     const b = document.createElement('span')
@@ -192,7 +192,7 @@ export default class TabContent extends React.PureComponent<Props, State> {
     a.classList.add('resizer-thumb-fill')
     c.classList.add('resizer-thumb-fill')
     b.classList.add('resizer-thumb')
-  }
+  } */
 
   public componentWillUnmount() {
     eventBus.emit('/tab/close', this.state.tab)
@@ -228,7 +228,7 @@ export default class TabContent extends React.PureComponent<Props, State> {
                 {...this.props}
                 tab={this.state.tab}
                 config={config}
-                sidecarIsVisible={this.state.sidecarWidth !== Width.Closed}
+                sidecarWidth={this.state.sidecarWidth}
                 closeSidecar={() => this.setState({ sidecarWidth: Width.Closed })}
                 onClear={() => {
                   this.setState({ showSessionInitDone: false })
@@ -237,7 +237,9 @@ export default class TabContent extends React.PureComponent<Props, State> {
                   // so that we can refocus/blur
                   this._terminal = c
                 }}
-              />
+              >
+                {this.children()}
+              </ScrollableTerminal>
             )}
           </KuiContext.Consumer>
         </React.Fragment>
@@ -409,7 +411,9 @@ export default class TabContent extends React.PureComponent<Props, State> {
    * [ Terminal | Sidecar ]
    */
   private leftRightSplit() {
-    return (
+    return this.terminal()
+
+    /* return (
       <SplitPane
         ref={c => {
           this.setState({ splitPaneImpl: c })
@@ -424,7 +428,7 @@ export default class TabContent extends React.PureComponent<Props, State> {
         {this.terminal()}
         {this.children()}
       </SplitPane>
-    )
+    ) */
   }
 
   /**

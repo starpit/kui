@@ -116,7 +116,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
       this.state = {
         headers,
         rows,
-        asGrid: this.props.asGrid,
+        asGrid: this.props.asGrid && findGridableColumn(this.props.response) >= 0,
         page: 1,
         pageSize: this.defaultPageSize
       } as S

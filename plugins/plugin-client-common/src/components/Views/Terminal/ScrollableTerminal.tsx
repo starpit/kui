@@ -33,6 +33,7 @@ import {
 
 import Block from './Block'
 import getSize from './getSize'
+import Width from '../Sidecar/width'
 import KuiConfiguration from '../../Client/KuiConfiguration'
 import {
   Active,
@@ -80,13 +81,14 @@ type Props = TerminalOptions & {
   /** KuiConfiguration */
   config: KuiConfiguration
 
-  sidecarIsVisible?: boolean
+  sidecarWidth: Width
   closeSidecar: () => void
 }
 
 interface ScrollbackState {
   uuid: string
   blocks: BlockModel[]
+  forceMiniSplit: boolean
 
   /** tab facade */
   facade?: KuiTab
@@ -216,6 +218,7 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
     const state = {
       uuid: sbuuid,
       cleaners: [],
+      forceMiniSplit: false,
       blocks: pinBlock ? [pinBlock] : [Active(capturedValue)] // <-- TODO: restore from localStorage for a given tab UUID?
     }
 
@@ -259,7 +262,7 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
       return
     }
 
-    if (isPopup() && this.props.sidecarIsVisible) {
+    if (isPopup() && this.isSidecarVisible()) {
       // see https://github.com/IBM/kui/issues/4183
       this.props.closeSidecar()
     }
@@ -671,21 +674,43 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
     return scrollback.facade
   }
 
+  /** Present the given scrollback as a minisplit? */
+  private isMiniSplit(scrollback: ScrollbackState, sbidx: number) {
+    return (
+      scrollback.forceMiniSplit || (this.state.splits.length > 2 && sbidx < this.state.splits.length - 1) || undefined
+    )
+  }
+
+  /** Is the sidecar currently visible? */
+  private isSidecarVisible() {
+    return this.props.sidecarWidth !== Width.Closed
+  }
+
+  /** Render sidecar */
+  private sidecar() {
+    return (
+      <span className="kui--full-height kui--sidecar-container" data-visible={this.isSidecarVisible() || undefined}>
+        {this.props.children}
+      </span>
+    )
+  }
+
   public render() {
     const nPinned = this.numPinnedSplits()
     const nTerminals = this.state.splits.length - nPinned
 
     return (
-      <div className={'repl' + (this.props.sidecarIsVisible ? ' sidecar-visible' : '')} id="main-repl">
+      <div className={'repl' + (this.isSidecarVisible() ? ' sidecar-visible' : '')} id="main-repl">
         <div
           className="repl-inner zoomable kui--terminal-split-container"
           data-split-count={nTerminals}
+          data-sidecar={!this.isSidecarVisible() ? undefined : this.props.sidecarWidth}
           data-pinned-count={nPinned === 0 ? undefined : nPinned}
         >
           {this.state.splits.map((scrollback, sbidx) => {
             const tab = this.tabFor(scrollback)
             const hasPinned = !!scrollback.blocks.find(_ => _.isPinned)
-            const isMiniSplit = (this.state.splits.length > 2 && sbidx < this.state.splits.length - 1) || undefined
+            const isMiniSplit = this.isMiniSplit(scrollback, sbidx)
 
             return React.createElement(
               hasPinned ? 'span' : 'div',
@@ -726,13 +751,8 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
               ))
             )
           })}
-          {nPinned > 0 &&
-            nPinned < MAX_PINNED &&
-            Array(MAX_PINNED - nPinned)
-              .fill(undefined)
-              .map((_, idx) => (
-                <span key={`kui--pinned-blank-${idx}`} data-has-pinned className="kui--scrollback kui--pinned-blank" />
-              ))}
+
+          {this.sidecar()}
         </div>
       </div>
     )
