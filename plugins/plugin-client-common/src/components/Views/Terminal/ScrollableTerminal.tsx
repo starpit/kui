@@ -45,6 +45,7 @@ import {
   isOk,
   isProcessing,
   hasUUID,
+  isOk,
   BlockModel
 } from './Block/BlockModel'
 
@@ -206,7 +207,7 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
     }
   }
 
-  private scrollback(capturedValue?: string, sbuuid = this.allocateUUIDForScrollback(true)): ScrollbackState {
+  private scrollback(capturedValue?: string, sbuuid = this.allocateUUIDForScrollback(false)): ScrollbackState {
     const state = {
       uuid: sbuuid,
       cleaners: [],
@@ -298,10 +299,19 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
         const inProcess = curState.blocks[inProcessIdx]
         if (isProcessing(inProcess)) {
           try {
+            const prefersTerminalPresentation =
+              (event.evaluatorOptions && event.evaluatorOptions.alwaysViewIn === 'Terminal') ||
+              (event.execOptions && event.execOptions.alwaysViewIn === 'Terminal')
+
             const blocks = curState.blocks
               .slice(0, inProcessIdx) // everything before
               .concat([
-                Finished(inProcess, event.responseType === 'ScalarResponse' ? event.response : true, event.cancelled)
+                Finished(
+                  inProcess,
+                  event.responseType === 'ScalarResponse' ? event.response : true,
+                  event.cancelled,
+                  prefersTerminalPresentation
+                )
               ]) // mark as finished
               .concat(curState.blocks.slice(inProcessIdx + 1)) // everything after
               .concat([Active()]) // plus a new block!
@@ -613,7 +623,7 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
                   onOutputRender={this.onOutputRender.bind(this, scrollback)}
                   willRemove={this.willRemoveBlock.bind(this, scrollback.uuid, idx)}
                   willLoseFocus={() => this.doFocus(scrollback)}
-                  isPinned={false}
+                  prefersTerminalPresentation={isOk(_) && _.prefersTerminalPresentation}
                   isPartOfMiniSplit={isMiniSplit}
                   ref={c => {
                     if (isActive(_)) {

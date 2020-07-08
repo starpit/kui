@@ -34,13 +34,12 @@ import renderTable from '../Table'
 import Markdown from '../Markdown'
 import { KuiContext } from '../../../'
 import RadioTableSpi from '../../spi/RadioTable'
+import { BlockViewTraits } from '../../Views/Terminal/Block'
 import { isError } from '../../Views/Terminal/Block/BlockModel'
 
-interface Props {
+type Props = BlockViewTraits & {
   tab: KuiTab
   response: ScalarResponse | Error
-  isPinned: boolean
-  isPartOfMiniSplit: boolean
   onRender: (hasContent: boolean) => void
 }
 
@@ -91,8 +90,9 @@ export default class Scalar extends React.PureComponent<Props, State> {
           </KuiContext.Consumer>
         )
       } else if (isTable(response)) {
-        const renderBottomToolbar = this.props.isPartOfMiniSplit
-        const renderGrid = !this.props.isPinned && this.props.isPartOfMiniSplit
+        const renderBottomToolbar = true
+        const renderGrid =
+          !this.props.prefersTerminalPresentation && this.props.isPartOfMiniSplit && response.body.length > 5
         return renderTable(tab, tab.REPL, response, undefined, renderBottomToolbar, renderGrid, this.props.onRender)
         // ^^^ Notes: typescript doesn't like this, and i don't know why:
         // "is not assignable to type IntrinsicAttributes..."

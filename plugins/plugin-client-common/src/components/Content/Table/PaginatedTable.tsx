@@ -198,12 +198,13 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
     const { tab, repl, response } = this.props
     const { headers, rows, page } = this.state
 
+    const isSortable = response.body.length > 1
     const dataTable = (visibleRows: NamedDataTableRow[], offset = 0) => (
       <React.Fragment>
         <DataTable
           rows={visibleRows}
           headers={headers}
-          isSortable={response.body.length > 1}
+          isSortable={isSortable}
           sortRow={sortRow}
           render={renderOpts => (
             <TableContainer
@@ -212,7 +213,8 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
                 (this.props.title ? ' kui--data-table-container-with-toolbars' : '') +
                 (this.props.response.title || this.props.response.breadcrumbs
                   ? ' kui--data-table-container-with-title'
-                  : '')
+                  : '') +
+                (isSortable ? ' kui--data-table-sortable' : '')
               }
             >
               <Table

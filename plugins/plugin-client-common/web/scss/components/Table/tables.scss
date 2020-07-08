@@ -67,9 +67,13 @@ body .bx--data-table-container {
   }
 }
 
+body .kui--data-table-sortable .bx--data-table th {
+  /* the sorting widgets give us the padding */
+  padding-right: 0;
+}
+
 body .bx--data-table {
   th {
-    padding-right: 0; /* sorting */
     vertical-align: middle;
   }
 
