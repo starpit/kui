@@ -224,8 +224,15 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
     return this.initEvents(state)
   }
 
+  /** @return a reasonable default split */
   private get current() {
-    return this.state.splits[0]
+    return this.state.splits.find((split, idx) => split && !this.isMiniSplit(split, idx))
+  }
+
+  /** @return the uuid of a reasonable default split */
+  private get currentUUID() {
+    const cur = this.current
+    return cur ? cur.uuid : undefined
   }
 
   /** Clear Terminal; TODO: also clear persisted state, when we have it */
@@ -249,7 +256,7 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
   }
 
   /** the REPL started executing a command */
-  private onExecStart(uuid = this.current ? this.current.uuid : undefined, event: CommandStartEvent) {
+  private onExecStart(uuid = this.currentUUID, event: CommandStartEvent) {
     if (event.echo === false) {
       // then the command wants to be incognito; e.g. onclickSilence for tables
       return
@@ -284,7 +291,7 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
   }
 
   /** the REPL finished executing a command */
-  private onExecEnd(uuid = this.current ? this.current.uuid : undefined, event: CommandCompleteEvent<ScalarResponse>) {
+  private onExecEnd(uuid = this.currentUUID, event: CommandCompleteEvent<ScalarResponse>) {
     if (event.echo === false) {
       // then the command wants to be incognito; e.g. onclickSilence for tables
       return
@@ -456,7 +463,7 @@ export default class ScrollableTerminal extends React.PureComponent<Props, State
     const focusedIdx = this.findSplit(curState, uuid)
     const availableSplitIdx = focusedIdx !== -1 ? focusedIdx : 0
 
-    return !this.isMiniSplit(curState.splits[availableSplitIdx], availableSplitIdx) ? availableSplitIdx : 0
+    return availableSplitIdx
   }
 
   // If the block has watchable response, abort the job

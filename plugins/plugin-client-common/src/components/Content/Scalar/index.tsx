@@ -93,7 +93,16 @@ export default class Scalar extends React.PureComponent<Props, State> {
         const renderBottomToolbar = true
         const renderGrid =
           !this.props.prefersTerminalPresentation && this.props.isPartOfMiniSplit && response.body.length > 5
-        return renderTable(tab, tab.REPL, response, undefined, renderBottomToolbar, renderGrid, this.props.onRender)
+        return renderTable(
+          tab,
+          tab.REPL,
+          response,
+          undefined,
+          renderBottomToolbar,
+          renderGrid,
+          this.props.onRender,
+          this.props.isPartOfMiniSplit
+        )
         // ^^^ Notes: typescript doesn't like this, and i don't know why:
         // "is not assignable to type IntrinsicAttributes..."
         // <PaginatedTable {...props} />

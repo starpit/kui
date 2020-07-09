@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/** Pinned scrollbacks */
-
-$inset-v: 0.5rem;
-$inset-h: 1rem;
-$breadcrumb-height: 2.5rem;
-$table-grid-cell-size: 1.25rem;
-
-/** grid assignments for minisplits */
+/** Grid assignments for terminals */
 div.kui--scrollback:nth-of-type(1) {
   grid-area: T1;
 }
@@ -38,7 +31,7 @@ div.kui--scrollback:nth-of-type(5) {
   grid-area: T5;
 }
 
-/** grid assignment for sidecar */
+/** Grid assignment for sidecar */
 .kui--sidecar-container {
   display: none;
   &[data-visible] {
@@ -47,36 +40,7 @@ div.kui--scrollback:nth-of-type(5) {
   }
 }
 
-/** special styling of table-as-grid within minisplit scrollbacks */
-span.kui--scrollback[data-has-pinned] [data-table-watching] {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-
-  .kui--data-table-as-grid .bx--data-table:not(:empty) {
-    padding: $inset-v $inset-h;
-  }
-
-  .kui--data-table-as-grid .bx--data-table {
-    grid-template-columns: repeat(auto-fill, $table-grid-cell-size) !important;
-
-    /* css magic to give inner scrolling of grid */
-    position: absolute;
-    overflow-y: auto;
-    max-height: calc(100% - #{$breadcrumb-height} - #{$inset-v});
-    top: $breadcrumb-height;
-
-    [data-tag='badge'] [data-tag='badge-circle'] {
-      width: $table-grid-cell-size;
-      height: $table-grid-cell-size;
-    }
-  }
-}
-.repl.sidecar-visible span.kui--scrollback[data-has-pinned] .kui--data-table-wrapper.kui--data-table-as-grid {
-  flex: 1;
-}
-
-/** Default Case: no splits, no pinned scrollbacks */
+/** Case: no splits */
 .repl:not(.sidecar-visible),
 .repl.sidecar-visible {
   .kui--terminal-split-container[data-split-count='1'] {
@@ -89,77 +53,6 @@ span.kui--scrollback[data-has-pinned] [data-table-watching] {
       grid-template-areas: 'T1 T1 S S S'; /* 40/60 split */
     }
   }
-}
-
-/** distinguish the mini splits */
-.kui--scrollback[data-is-minisplit] {
-  background-color: var(--color-base02);
-  box-shadow: 1px 1px var(--color-base01);
-  border: 1px dotted var(--color-base03);
-  display: flex;
-  flex-direction: column;
-
-  .repl-block + .repl-block.repl-active {
-    margin-top: 0.5rem;
-  }
-
-  .kui--repl-block-timestamp {
-    display: none;
-  }
-
-  .repl-block {
-    margin: 0;
-
-    &:not(.repl-active):not(.processing) {
-      flex: 1;
-
-      &:not(:nth-last-child(2)) {
-        display: none;
-      }
-    }
-    .repl-output {
-      flex: 1;
-      padding-right: 1rem;
-
-      .repl-result:not(:empty) {
-        flex: 1;
-        display: flex;
-
-        .kui--data-table-as-grid {
-          /* grids should wrap, rather than be rectilinear */
-          grid-template-columns: repeat(auto-fill, minmax(1.25rem, auto)) !important;
-        }
-      }
-
-      .kui--card {
-        flex: 1;
-        margin-top: 0.5rem;
-      }
-      .kui--card-body {
-        position: relative;
-        .kui--data-table-as-grid {
-          position: absolute;
-          padding-right: 1rem;
-          width: calc(100% - 1rem);
-          max-height: calc(100% - 2rem);
-          overflow: auto;
-        }
-        .kui--data-table-container {
-          position: absolute;
-          overflow: auto;
-          max-height: 100%;
-        }
-      }
-      div[data-table-watching] {
-        flex: 1;
-        display: flex;
-      }
-    }
-  }
-  /*.repl-block + .repl-block.repl-active {
-    flex: 1;
-    justify-content: flex-end;
-  }*/
 }
 
 /**

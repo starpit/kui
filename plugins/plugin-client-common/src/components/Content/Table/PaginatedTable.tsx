@@ -67,6 +67,9 @@ export type Props<T extends KuiTable = KuiTable> = PaginationConfiguration & {
   /** use title? */
   title: boolean
 
+  /** Is this table being rendered in a minisplit? */
+  isPartOfMiniSplit: boolean
+
   /** display as grid (versus as regular table)? */
   asGrid: boolean
 
@@ -264,7 +267,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
               (this.state.asGrid ? ' kui--data-table-as-grid' : '') +
               (config.lightweightTables ? ' kui--data-table-wrapper-lightweight' : '')
 
-            if (this.props.response.style === TableStyle.Light) {
+            if (this.props.response.style === TableStyle.Light && !this.props.isPartOfMiniSplit) {
               return <div className={className}>{this.content(true, config.lightweightTables)}</div>
             } else {
               return (
