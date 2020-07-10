@@ -29,7 +29,7 @@ import {
 
 import { kindPart } from '../fqn'
 import { getKind } from '../explain'
-import { formatOf, getNamespace, KubeOptions, KubeExecOptions } from '../options'
+import { formatOf, getLabel, getNamespace, KubeOptions, KubeExecOptions } from '../options'
 
 import { getCommandFromArgs } from '../../../lib/util/util'
 import { Pair, getNamespaceBreadcrumbs } from '../../../lib/view/formatTable'
@@ -327,10 +327,12 @@ class KubectlWatcher implements Abortable, Watcher {
     const cmd = getCommandFromArgs(this.args)
     const namespace = await getNamespace(this.args)
     const kindByUser = this.args.argvNoOptions[this.args.argvNoOptions.indexOf('get') + 1]
+    const getWithResourceName = this.args.argvNoOptions.indexOf(kindByUser) !== this.args.argvNoOptions.length - 1
 
-    if (this.args.argvNoOptions.indexOf(kindByUser) === this.args.argvNoOptions.length - 1) {
+    if (getWithResourceName || getLabel(this.args) || this.args.parsedOptions['field-selector']) {
+      debug('event watch not support')
+    } else {
       const kind = await getKind(cmd, this.args, kindByUser)
-
       const filter = `--field-selector=involvedObject.kind=${kind}`
       const output = `--no-headers -o jsonpath='{.involvedObject.name}{"|"}{.message}{"|\\n"}'`
       const getEventCommand = `${cmd} get events -w -n ${namespace} ${filter} ${output}`.replace(/^k(\s)/, 'kubectl$1')
@@ -343,8 +345,6 @@ class KubectlWatcher implements Abortable, Watcher {
       }).catch(err => {
         debug('pty event error', err)
       })
-    } else {
-      debug('event watch not support')
     }
   }
 }
