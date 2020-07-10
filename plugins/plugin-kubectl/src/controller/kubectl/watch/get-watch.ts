@@ -29,7 +29,7 @@ import {
 
 import { kindPart } from '../fqn'
 import { getKind } from '../explain'
-import { formatOf, KubeOptions, KubeExecOptions } from '../options'
+import { formatOf, getNamespace, KubeOptions, KubeExecOptions } from '../options'
 
 import { getCommandFromArgs } from '../../../lib/util/util'
 import { Pair, getNamespaceBreadcrumbs } from '../../../lib/view/formatTable'
@@ -168,29 +168,6 @@ class KubectlWatcher implements Abortable, Watcher {
     })
   }
 
-  /**
-   * Watch events for the user-formatted rows for the so-named resources in the
-   * given namespace.
-   *
-   */
-  private getEventsForNamespace(apiVersion: string, kind: string, namespace: string, rowNames: string[]) {
-    const filter = `--field-selector=involvedObject.kind=${kind}`
-    const output = `--no-headers -o jsonpath='{.involvedObject.name}{"|"}{.message}{"|\\n"}'`
-    const getCommand = `${getCommandFromArgs(this.args)} get events -w -n ${namespace} ${filter} ${output}`.replace(
-      /^k(\s)/,
-      'kubectl$1'
-    )
-
-    this.args.REPL.qexec(`sendtopty ${getCommand}`, this.args.block, undefined, {
-      quiet: true,
-      replSilence: true,
-      echo: false,
-      onInit: this.onPTYEventInit.bind(this, rowNames) // <-- the PTY will call us back when it's ready to stream
-    }).catch(err => {
-      debug('pty event watcher error', err)
-    })
-  }
-
   /** Get rows as specified by user's -o */
   private async getRowsForUser(rows: Pair[][]): Promise<void | Table> {
     const kind = rows[0][1].value
@@ -214,24 +191,6 @@ class KubectlWatcher implements Abortable, Watcher {
         body: flatten(tables.map(_ => _.body))
       }
     }
-  }
-
-  /**
-   * For each namesapce, spawn an event watcher for `rows`
-   * @param rows is the inital kubectl resources being watched
-   */
-  private async eventWatchInit(rows: Pair[][]) {
-    const kind = rows[0][1].value
-    const apiVersion = rows[0][2].value // FIXME: not used by event watcher currently
-
-    const groups = this.groupByNamespace(rows)
-
-    await Promise.all(
-      Object.keys(groups).map(namespace => {
-        const rowNames = groups[namespace].map(group => group[0].value)
-        this.getEventsForNamespace(apiVersion, kind, namespace, rowNames)
-      })
-    )
   }
 
   /**
@@ -270,9 +229,6 @@ class KubectlWatcher implements Abortable, Watcher {
         this.leftover = preprocessed.leftover === '\n' ? undefined : preprocessed.leftover
         const { rows } = preprocessed
 
-        // FIXME: if we already have event watcher watching for this kind, namespace, and rows, don't spawn new watcher
-        this.eventWatchInit(rows)
-
         // now process the full rows into table view updates
         const table = await this.getRowsForUser(rows)
 
@@ -309,7 +265,7 @@ class KubectlWatcher implements Abortable, Watcher {
     }
   }
 
-  private onPTYEventInit(rowNames: string[], ptyJob: Abortable) {
+  private onPTYEventInit(ptyJob: Abortable) {
     debug('onPTYEventInit')
     this.ptyJob.push(ptyJob)
 
@@ -320,13 +276,11 @@ class KubectlWatcher implements Abortable, Watcher {
 
         // here is where we turn the raw data into tabular data
         const preprocessed = preprocessTable(rawData, 2)
-        console.error('rawData', rawData)
+        // debug('rawData', rawData)
         this.eventLeftover = preprocessed.leftover === '\n' ? undefined : preprocessed.leftover
-        const rows = preprocessed.rows
-          .filter(row => !rowNames || rowNames.includes(row[0].value))
-          .map(row => {
-            return `${row[0].value}: ${row[1].value}`
-          })
+
+        // format the row as `involvedObject.name: message`
+        const rows = preprocessed.rows.map(row => `${row[0].value}: ${row[1].value}`)
 
         if (rows) {
           this.pusher.footer(rows)
@@ -366,6 +320,32 @@ class KubectlWatcher implements Abortable, Watcher {
     }).catch(err => {
       debug('pty error', err)
     })
+
+    // here, we initiate a kubectl event watch, using a schema of our
+    // choosing; we ask the PTY to stream output back to us, by using
+    // the `onInit` API
+    const cmd = getCommandFromArgs(this.args)
+    const namespace = await getNamespace(this.args)
+    const kindByUser = this.args.argvNoOptions[this.args.argvNoOptions.indexOf('get') + 1]
+
+    if (this.args.argvNoOptions.indexOf(kindByUser) === this.args.argvNoOptions.length - 1) {
+      const kind = await getKind(cmd, this.args, kindByUser)
+
+      const filter = `--field-selector=involvedObject.kind=${kind}`
+      const output = `--no-headers -o jsonpath='{.involvedObject.name}{"|"}{.message}{"|\\n"}'`
+      const getEventCommand = `${cmd} get events -w -n ${namespace} ${filter} ${output}`.replace(/^k(\s)/, 'kubectl$1')
+
+      this.args.REPL.qexec(`sendtopty ${getEventCommand}`, this.args.block, undefined, {
+        quiet: true,
+        replSilence: true,
+        echo: false,
+        onInit: this.onPTYEventInit.bind(this) // <-- the PTY will call us back when it's ready to stream
+      }).catch(err => {
+        debug('pty event error', err)
+      })
+    } else {
+      debug('event watch not support')
+    }
   }
 }
 
