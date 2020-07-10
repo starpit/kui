@@ -27,7 +27,8 @@ import {
   ExecType,
   isPopup,
   CommandStartEvent,
-  CommandCompleteEvent
+  CommandCompleteEvent,
+  isWatchable
 } from '@kui-shell/core'
 
 import Block from './Block'
@@ -45,7 +46,6 @@ import {
   isOk,
   isProcessing,
   hasUUID,
-  isOk,
   BlockModel
 } from './Block/BlockModel'
 
