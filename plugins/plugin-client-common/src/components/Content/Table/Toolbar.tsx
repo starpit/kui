@@ -21,6 +21,10 @@ import Breadcrumb, { Props as BreadcrumbProps } from '../../spi/Breadcrumb'
 
 import 'carbon-components/scss/components/pagination/_pagination.scss'
 
+import '../../../../web/css/static/ToolbarButton.scss'
+import '../../../../web/scss/components/Table/Events.scss'
+import '../../../../web/scss/components/Table/Toolbar.scss'
+
 export type Props = Partial<GridProps> &
   Partial<PaginationProps> &
   Partial<BreadcrumbProps> &
@@ -156,7 +160,7 @@ export default class Toolbar extends React.PureComponent<Props> {
   private messageStream() {
     if (this.props.stream) {
       return (
-        <div className="kui--data-table-footer-message">
+        <div className="kui--data-table-footer-message kui--inverted-color-context">
           {this.props.stream.map((_, idx) => (
             <div key={idx}>{_}</div>
           ))}

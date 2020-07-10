@@ -39,9 +39,6 @@ import '../../../../web/scss/components/Table/hack-select.scss'
 /** import the kui theme alignment */
 import '../../../../web/scss/components/Table/carbon-kui-theme-alignment.scss'
 
-import '../../../../web/css/static/ToolbarButton.scss'
-import '../../../../web/scss/components/Table/Toolbar.scss'
-
 const strings = i18n('plugin-client-common')
 
 interface PaginationConfiguration {
@@ -169,20 +166,23 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
     const gridableColumn = findGridableColumn(this.props.response)
 
     return (
-      this.props.toolbars &&
-      (this.isPaginated() || gridableColumn >= 0) && (
-        <Toolbar
-          className="kui--data-table-toolbar-bottom"
-          asGrid={this.state.asGrid}
-          gridableColumn={gridableColumn}
-          setAsGrid={(asGrid: boolean) => this.setState({ asGrid })}
-          paginate={this.isPaginated()}
-          setPage={(page: number) => this.setState({ page })}
-          page={this.state.page}
-          totalItems={this.state.rows.length}
-          pageSize={this.state.pageSize}
-        />
-      )
+      <React.Fragment>
+        {this.bottomStream()}
+
+        {this.props.toolbars && (this.isPaginated() || gridableColumn >= 0) && (
+          <Toolbar
+            className="kui--data-table-toolbar-bottom"
+            asGrid={this.state.asGrid}
+            gridableColumn={gridableColumn}
+            setAsGrid={(asGrid: boolean) => this.setState({ asGrid })}
+            paginate={this.isPaginated()}
+            setPage={(page: number) => this.setState({ page })}
+            page={this.state.page}
+            totalItems={this.state.rows.length}
+            pageSize={this.state.pageSize}
+          />
+        )}
+      </React.Fragment>
     )
   }
 
@@ -263,15 +263,6 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
     )
   }
 
-  private bottom(lightweightTables: boolean) {
-    return (
-      <React.Fragment>
-        {this.bottomStream()}
-        {this.bottomToolbar(lightweightTables)}
-      </React.Fragment>
-    )
-  }
-
   public render() {
     if (!this.state) {
       return <div className="oops">Internal Error</div>
@@ -288,7 +279,11 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
               return <div className={className}>{this.content(true, config.lightweightTables)}</div>
             } else {
               return (
-                <Card header={this.topToolbar()} footer={this.bottom(config.lightweightTables)} className={className}>
+                <Card
+                  header={this.topToolbar()}
+                  footer={this.bottomToolbar(config.lightweightTables)}
+                  className={className}
+                >
                   {this.content(false, config.lightweightTables)}
                 </Card>
               )
