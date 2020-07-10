@@ -155,10 +155,8 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
      */
   }
 
-  private bottomStream() {
-    if (this.state.footer) {
-      return <Toolbar stream={this.state.footer.slice(-2)} />
-    }
+  private footerLines() {
+    return this.state.footer ? this.state.footer.slice(-2) : undefined
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -167,8 +165,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
 
     return (
       <React.Fragment>
-        {this.bottomStream()}
-
+        {this.state.asGrid && this.state.footer && <Toolbar stream={this.footerLines()} />}
         {this.props.toolbars && (this.isPaginated() || gridableColumn >= 0) && (
           <Toolbar
             className="kui--data-table-toolbar-bottom"
@@ -238,7 +235,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
                 }
               >
                 {response.header && renderHeader(response.header, renderOpts)}
-                {renderBody(response.body, this.justUpdatedMap(), renderOpts, tab, repl, offset)}
+                {renderBody(response.body, this.justUpdatedMap(), renderOpts, tab, repl, offset, this.footerLines())}
               </Table>
             </TableContainer>
           )}
@@ -280,7 +277,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
             } else {
               return (
                 <Card
-                  header={this.topToolbar()}
+                  header={this.topToolbar(config.lightweightTables)}
                   footer={this.bottomToolbar(config.lightweightTables)}
                   className={className}
                 >
