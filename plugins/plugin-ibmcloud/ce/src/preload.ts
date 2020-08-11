@@ -16,9 +16,14 @@
 
 import Debug from 'debug'
 import { PreloadRegistrar } from '@kui-shell/core'
+
+import vfs from './vfs'
 import logsMode from './view/modes/Logs'
 
 export default async (registrar: PreloadRegistrar) => {
+  // register vfs
+  vfs()
+
   // register modes
   await registrar.registerModes(logsMode)
 
