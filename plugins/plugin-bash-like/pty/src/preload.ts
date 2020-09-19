@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 IBM Corporation
+ * Copyright 2019-20 IBM Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,18 @@
  * limitations under the License.
  */
 
-import Debug from 'debug'
-const debug = Debug('plugins/bash-like/preload')
-debug('loading')
-
 import { inBrowser, CapabilityRegistration, PreloadRegistrar } from '@kui-shell/core'
-
-import { preload as registerCatchAll } from './lib/cmds/catchall'
 
 export const registerCapability: CapabilityRegistration = async (registrar: PreloadRegistrar) => {
   if (inBrowser()) {
-    await import('./pty/session').then(({ init }) => init(registrar))
+    await import('./session').then(({ init }) => init(registrar))
   } else {
     try {
-      const prefetchShellState = (await import('./pty/prefetch')).default
+      const prefetchShellState = (await import('./prefetch')).default
       await prefetchShellState()
-      debug('done with state prefetch')
+      // debug('done with state prefetch')
     } catch (err) {
       console.error('error in state prefetch', err)
     }
   }
 }
-
-/**
- * This is the module
- *
- */
-export default async (registrar: PreloadRegistrar) => {
-  return registerCatchAll(registrar)
-}
-
-debug('finished loading')

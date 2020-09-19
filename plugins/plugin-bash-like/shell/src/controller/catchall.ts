@@ -77,7 +77,7 @@ export const dispatchToShell = async ({
     }
     return response
   } else {
-    const { doExec } = await import(/* webpackMode: "lazy" */ '../../pty/client')
+    const { doExec } = await import(/* webpackMode: "lazy" */ '@kui-shell/plugin-bash-like/pty')
     const exec = () => doExec(tab, actualCommand, argvNoOptions, parsedOptions, eOptions)
 
     if (useRaw) {

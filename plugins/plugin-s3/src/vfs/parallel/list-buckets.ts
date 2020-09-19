@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-import { notebookVFS } from '@kui-shell/plugin-core-support'
+import client from './client'
 
-import vfs from './vfs'
-
-export default () => {
-  vfs()
-
-  // mount notebooks
-  notebookVFS.mkdir({ argvNoOptions: ['mkdir', '/kui/s3'] })
-  notebookVFS.cp(undefined, ['plugin://plugin-s3/notebooks/parallel-grep.json'], '/kui/s3/')
+export default function listBuckets() {
+  console.log('list buckets', process.env)
+  return client.listBuckets()
 }

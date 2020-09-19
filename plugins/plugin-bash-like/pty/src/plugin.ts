@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import bash from './lib/cmds/bash-like'
-import ptyServer from './pty/server'
-import exportCommand from './lib/cmds/export'
+import ptyServer from './server'
 
 import { Registrar } from '@kui-shell/core'
 
@@ -25,5 +23,5 @@ import { Registrar } from '@kui-shell/core'
  *
  */
 export default (registrar: Registrar) => {
-  return Promise.all([bash(registrar), ptyServer(registrar), exportCommand(registrar)])
+  return Promise.all([ptyServer(registrar)])
 }

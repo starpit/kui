@@ -200,6 +200,10 @@ class NotebookVFS implements VFS {
   public rmdir(): Promise<void> {
     throw new Error('Unsupported operation')
   }
+
+  public grep(/* opts: Arguments, pattern: string, filepaths: string[] */): Promise<string[]> {
+    throw new Error('Unsupported operation')
+  }
 }
 
 const vfs = new NotebookVFS()

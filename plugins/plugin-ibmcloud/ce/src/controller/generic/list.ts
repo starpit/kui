@@ -15,7 +15,7 @@
  */
 
 import { Arguments, Table, MixedResponse } from '@kui-shell/core'
-import { doExecWithStdoutViaPty } from '@kui-shell/plugin-bash-like'
+import { doExecWithStdoutViaPty } from '@kui-shell/plugin-bash-like/shell'
 import { KubeOptions, watchRequestFrom, withNamespaceBreadcrumb, isUsage } from '@kui-shell/plugin-kubectl'
 
 import getConfig from '../config'

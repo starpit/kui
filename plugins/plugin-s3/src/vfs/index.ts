@@ -456,6 +456,75 @@ class S3VFSResponder extends S3VFS implements VFS {
       throw new Error(err.message)
     }
   }
+
+  private async pollForCompletion({ REPL }: Pick<Arguments, 'REPL'>, jobname: string, nTasks: number) {
+    while (true) {
+      const json = await REPL.qexec<string>(`ibmcloud ce job get --name ${jobname} -o json`).catch(err => {
+        console.error(err)
+        return undefined
+      })
+      if (json && json.status && json.status.succeeded === nTasks) {
+        return jobname
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+    }
+  }
+
+  private async getLogsForTask({ REPL }: Pick<Arguments, 'REPL'>, jobname: string, taskIdx: number): Promise<string[]> {
+    const logs = await REPL.qexec<string>(`ibmcloud ce kubectl logs ${jobname}-${taskIdx}-0`)
+    const logLines = logs.split(/\n/).filter(_ => /^GREP /.test(_))
+
+    return logLines.map(_ => _.replace(/^GREP /, ''))
+  }
+
+  private async getLogs(
+    args: Pick<Arguments, 'REPL' | 'parsedOptions'>,
+    jobname: string,
+    nTasks: number
+  ): Promise<string[]> {
+    return flatten(
+      await Promise.all(
+        Array(nTasks)
+          .fill(0)
+          .map((_, idx) => this.getLogsForTask(args, jobname, idx + 1))
+      )
+    )
+  }
+
+  public async grep(
+    opts: Parameters<VFS['grep']>[0],
+    pattern: string,
+    filepaths: string[]
+  ): Promise<number | string[]> {
+    const nTasks = opts.parsedOptions.P || 20
+
+    const perFileResults = await Promise.all(
+      filepaths.map(async filepath => {
+        const { bucketName, fileName } = this.split(filepath)
+        const jobname = await opts.REPL.qexec<string>(
+          `ibmcloud ce job run --jobdef vfs -e OPERATION=grep -e S3_ACCESS_KEY=76bdbf951dbb4cec85781039bee2a377 -e S3_SECRET_KEY=87d0390b0836048a3ed664917f14bd6dd1b476496342c867 -e SRC_BUCKET=${bucketName} -e SRC_OBJECT=${fileName} -e NSHARDS=${nTasks} -e PATTERN=${pattern} -ai 1-${nTasks}`
+        )
+
+        await this.pollForCompletion(opts, jobname, nTasks)
+
+        return this.getLogs(opts, jobname, nTasks)
+      })
+    )
+
+    if (opts.parsedOptions.c) {
+      return perFileResults.map(_ => _.length).reduce((sum, count) => sum + count, 0)
+    } else if (opts.parsedOptions.l) {
+      return perFileResults.reduce((matchingFiles, matches, idx) => {
+        if (matches.length > 0) {
+          matchingFiles.push(filepaths[idx])
+        }
+        return matchingFiles
+      }, [])
+    } else {
+      return flatten(perFileResults)
+    }
+  }
 }
 
 class S3VFSForwarder extends S3VFS implements VFS {
@@ -516,6 +585,12 @@ class S3VFSForwarder extends S3VFS implements VFS {
     filepath: string
   ): Promise<void> {
     await opts.REPL.qexec(`vfs-s3 mkdir ${opts.REPL.encodeComponent(filepath)}`)
+  }
+
+  public async grep(opts: Arguments, pattern: string, filepaths: string[]): Promise<string[]> {
+    return opts.REPL.qexec(
+      `vfs-s3 grep ${opts.REPL.encodeComponent(pattern)} ${filepaths.map(_ => opts.REPL.encodeComponent(_)).join(' ')}`
+    )
   }
 }
 

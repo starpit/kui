@@ -17,7 +17,7 @@
 import { CommandHandler, KResponse, ParsedOptions, Registrar } from '@kui-shell/core'
 
 import { fstatImpl, lsImpl } from './server-side'
-import { cp, rm, mkdir, rmdir } from '../delegates'
+import { cp, rm, mkdir, rmdir, grep } from '../delegates'
 
 /**
  * Generic registration for commands with boolean flags.
@@ -89,5 +89,13 @@ export default function(registrar: Registrar) {
       return cp(args, srcs, dst)
     },
     'acfHiLnPpRvX'
+  )
+
+  on(
+    'grep',
+    args => {
+      return grep(args, args.argvNoOptions[1], args.argvNoOptions.slice(2))
+    },
+    'alcEFHIJLnOqrsUVvwxyZz'
   )
 }

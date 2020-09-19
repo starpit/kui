@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-import { notebookVFS } from '@kui-shell/plugin-core-support'
+import { Client } from 'minio'
 
-import vfs from './vfs'
-
-export default () => {
-  vfs()
-
-  // mount notebooks
-  notebookVFS.mkdir({ argvNoOptions: ['mkdir', '/kui/s3'] })
-  notebookVFS.cp(undefined, ['plugin://plugin-s3/notebooks/parallel-grep.json'], '/kui/s3/')
-}
+export default new Client({
+  endPoint: 's3.us-south.cloud-object-storage.appdomain.cloud', // FIXME
+  accessKey: process.env.S3_ACCESS_KEY,
+  secretKey: process.env.S3_SECRET_KEY
+})

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 IBM Corporation
+ * Copyright 2019-2020 IBM Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import { notebookVFS } from '@kui-shell/plugin-core-support'
+import { ParsedOptions } from '@kui-shell/core'
 
-import vfs from './vfs'
-
-export default () => {
-  vfs()
-
-  // mount notebooks
-  notebookVFS.mkdir({ argvNoOptions: ['mkdir', '/kui/s3'] })
-  notebookVFS.cp(undefined, ['plugin://plugin-s3/notebooks/parallel-grep.json'], '/kui/s3/')
+/** Options for client/doExec */
+interface Options extends ParsedOptions {
+  o?: string
+  out?: string
+  output?: string
 }
+
+export default Options

@@ -14,14 +14,27 @@
  * limitations under the License.
  */
 
-import { notebookVFS } from '@kui-shell/plugin-core-support'
+import grep from './grep'
+import copyShard from './copy-shard'
+import listBuckets from './list-buckets'
 
-import vfs from './vfs'
-
-export default () => {
-  vfs()
-
-  // mount notebooks
-  notebookVFS.mkdir({ argvNoOptions: ['mkdir', '/kui/s3'] })
-  notebookVFS.cp(undefined, ['plugin://plugin-s3/notebooks/parallel-grep.json'], '/kui/s3/')
+const ops = {
+  grep: grep,
+  copyShard: copyShard,
+  listBuckets: listBuckets
 }
+
+function nope() {
+  return 'no OPERATION env var specified'
+}
+
+async function dispatch() {
+  try {
+    const result = await (ops[process.env.OPERATION] || nope)()
+    console.log(result)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+dispatch()

@@ -86,6 +86,31 @@ class LocalVFS implements VFS {
       Object.assign(opts.execOptions, { quiet: false })
     )
   }
+
+  /** grep for file content */
+  public async grep(opts: Parameters<VFS['grep']>[0]): ReturnType<VFS['grep']> {
+    await opts.REPL.qexec(
+      `sendtopty ${opts.command.replace(/^vfs/, '')}`,
+      undefined,
+      undefined,
+      Object.assign(opts.execOptions, { quiet: false })
+    )
+
+    return true
+
+    /* const args = Object.assign({}, opts, {
+      command: opts.command.replace(/^vfs/, '') + ' --color=never',
+      argv: opts.argv.slice(1).concat(['--color=never']),
+      argvNoOptions: opts.argvNoOptions.slice(1)
+    })
+
+    const result = await doExecWithStdoutViaPty(args)
+    if (opts.parsedOptions.c) {
+      return parseInt(result, 10)
+    } else {
+      return result.split(/\n/).filter(_ => _)
+    } */
+  }
 }
 
 export default async () => {

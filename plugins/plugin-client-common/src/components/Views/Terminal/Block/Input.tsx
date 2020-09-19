@@ -16,6 +16,7 @@
 
 import * as React from 'react'
 import { basename } from 'path'
+import * as prettyPrintDuration from 'pretty-ms'
 import { dots as spinnerFrames } from 'cli-spinners'
 import { Tab as KuiTab, doCancel, i18n, isTable, hasSourceReferences, eventBus, getPrimaryTabId } from '@kui-shell/core'
 
@@ -579,7 +580,12 @@ export default class Input extends InputProvider {
       return (
         this.props.model.startTime && (
           <span className="kui--repl-block-timestamp kui--repl-block-right-element">
-            {this.props.model.startTime.toLocaleTimeString()}
+            {new Date(this.props.model.startTime).toLocaleTimeString()}
+            {isWithCompleteEvent(this.props.model) && (
+              <span className="small-left-pad">
+                ({prettyPrintDuration(this.props.model.completeEvent.completeTime - this.props.model.startTime)})
+              </span>
+            )}
           </span>
         )
       )

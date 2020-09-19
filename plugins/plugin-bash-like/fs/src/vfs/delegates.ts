@@ -126,3 +126,29 @@ export async function rmdir(...parameters: Parameters<VFS['rmdir']>): ReturnType
   const mount = findMount(parameters[1])
   return mount.rmdir(parameters[0], parameters[1])
 }
+
+/**
+ * grep delegate
+ *
+ */
+export async function grep(...parameters: Parameters<VFS['grep']>): ReturnType<VFS['grep']> {
+  const mounts = multiFindMount(parameters[2], false)
+  if (mounts.length === 0) {
+    const err: CodedError = new Error(`VFS not mounted: ${parameters[2]}`)
+    err.code = 404
+    throw err
+  }
+
+  const matches = (
+    await Promise.all(mounts.map(({ filepaths, mount }) => mount.grep(parameters[0], parameters[1], filepaths)))
+  ).filter(_ => _ !== true)
+
+  if (matches.length > 0) {
+    if (parameters[0].parsedOptions.c) {
+      const N = (matches as number[]).reduce((sum, count) => sum + count, 0)
+      return N
+    } else {
+      return flatten(matches as string[][])
+    }
+  }
+}

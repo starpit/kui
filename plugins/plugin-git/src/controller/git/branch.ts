@@ -15,7 +15,7 @@
  */
 
 import { Arguments, ParsedOptions, RadioTable, Registrar } from '@kui-shell/core'
-import { doExecWithStdoutViaPty, doExecWithPty } from '@kui-shell/plugin-bash-like'
+import { doExecWithStdoutViaPty, doExecWithPty } from '@kui-shell/plugin-bash-like/shell'
 
 const stripAnsi = require('strip-ansi')
 

@@ -38,7 +38,7 @@ import {
 
 import { isDisabled, config } from './config'
 
-import { getSessionForTab } from '@kui-shell/plugin-bash-like'
+import { getSessionForTab } from '@kui-shell/plugin-bash-like/pty'
 
 const debug = Debug('plugins/proxy-support/executor')
 
