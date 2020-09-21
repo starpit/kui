@@ -26,6 +26,9 @@ $action-padding: 3px;
 /** Hover hysteresis for showing action buttons */
 $action-hover-delay: 140ms;
 
+/** Color to indicate focused block */
+$focus-color: var(--color-brand-01);
+
 .repl-input,
 .repl-input-sourceref,
 .repl-output {
@@ -53,6 +56,9 @@ $action-hover-delay: 140ms;
     }
   }
 
+  & > li:focus {
+    outline: none;
+  }
   .repl-block {
     position: relative;
 
@@ -71,9 +77,6 @@ $action-hover-delay: 140ms;
       border-top-right-radius: 1px;
       border-bottom-right-radius: 1px;
     }
-    &[data-is-output-only]:not([data-is-focused]):before {
-      background-color: transparent;
-    }
     &:not([data-is-output-only]) .repl-output.repl-result-has-content {
       margin-top: 0.5rem;
     }
@@ -82,29 +85,51 @@ $action-hover-delay: 140ms;
         display: none;
       }
     }
-    &[data-is-focused]:before {
-      opacity: 1;
-    }
-    &[data-is-focused]:before,
-    &:hover:before {
-      background-color: var(--color-brand-01);
-    }
     &.error:before {
       opacity: 1;
       background-color: var(--color-error);
-    }
-    &[data-is-focused] .repl-context {
-      opacity: 1;
     }
     &:hover .repl-output .repl-context:after {
       border-color: var(--color-base03);
     }
   }
 
-  .repl-block {
-    padding: 0.875rem 0;
+  /** focus */
+  li:focus .repl-block,
+  .repl-block.repl-active[data-is-focused] {
+    @include show-block-action-buttons;
+
+    &:before {
+      opacity: 1;
+    }
+    &:before {
+      background-color: $focus-color;
+    }
+    .repl-context {
+      opacity: 1;
+    }
+  }
+  li:hover .repl-block:before {
+    background-color: $focus-color;
+  }
+  li:not(:focus) {
+    .repl-block {
+      &[data-is-output-only]:before {
+        background-color: transparent;
+      }
+      .repl-context:hover,
+      .repl-input-element:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  & > li {
+  }
+  & > li .repl-block {
     display: flex;
     flex-direction: column;
+    padding: 0.875rem 0;
 
     &[data-is-quietly-elsewhere] {
       padding-top: 0;
@@ -137,10 +162,6 @@ $action-hover-delay: 140ms;
       transition-property: right;
       transition-delay: $action-hover-delay;
       transition-duration: 140ms;
-    }
-
-    &[data-is-focused] {
-      @include show-block-action-buttons;
     }
 
     .kui--block-action {
@@ -196,12 +217,6 @@ $action-hover-delay: 140ms;
       margin-right: 0.5rem;
       position: relative;
       opacity: 0.75;
-    }
-    &:not([data-is-focused]) {
-      .repl-context:hover,
-      .repl-input-element:hover {
-        cursor: pointer;
-      }
     }
 
     .repl-input .repl-context:before {
