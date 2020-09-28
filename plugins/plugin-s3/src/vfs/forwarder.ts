@@ -68,4 +68,13 @@ export default function(registrar: Registrar) {
     },
     { requiresLocal: true }
   )
+
+  registrar.listen(
+    '/vfs-s3/gunzip',
+    async args => {
+      await responder.gunzip(args, args.argvNoOptions.slice(1))
+      return true
+    },
+    { requiresLocal: true }
+  )
 }

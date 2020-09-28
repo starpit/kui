@@ -16,5 +16,5 @@
 
 export const Get = 'kubectl get jobrun'
 
-export { default as Run } from './run'
+export { default as Create } from './run'
 export { default as List } from './list'

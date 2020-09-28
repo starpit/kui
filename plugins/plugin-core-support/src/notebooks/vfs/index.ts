@@ -204,6 +204,11 @@ class NotebookVFS implements VFS {
   public grep(/* opts: Arguments, pattern: string, filepaths: string[] */): Promise<string[]> {
     throw new Error('Unsupported operation')
   }
+
+  /** unzip a set of files */
+  public async gunzip(): ReturnType<VFS['gunzip']> {
+    throw new Error('Unsupported operation')
+  }
 }
 
 const vfs = new NotebookVFS()

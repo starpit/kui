@@ -85,6 +85,12 @@ export interface VFS {
 
   /** grep for file content */
   grep(opts: Arguments<GrepOptions>, pattern: string, filepaths: string[]): Promise<true | number | string[]>
+
+  /** unzip a set of files */
+  gunzip(
+    opts: Pick<Arguments, 'command' | 'argv' | 'REPL' | 'parsedOptions' | 'execOptions'>,
+    filepaths: string[]
+  ): Promise<void>
 }
 
 /**

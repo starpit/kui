@@ -127,7 +127,7 @@ export async function rmdir(...parameters: Parameters<VFS['rmdir']>): ReturnType
   return mount.rmdir(parameters[0], parameters[1])
 }
 
-/**
+/*
  * grep delegate
  *
  */
@@ -151,4 +151,18 @@ export async function grep(...parameters: Parameters<VFS['grep']>): ReturnType<V
       return flatten(matches as string[][])
     }
   }
+}
+
+/*
+ * gunzip delegate
+ *
+ */
+export async function gunzip(...parameters: Parameters<VFS['gunzip']>): ReturnType<VFS['gunzip']> {
+  const mounts = multiFindMount(parameters[1], true)
+  if (mounts.length === 0) {
+    const err: CodedError = new Error(`VFS not mounted: ${parameters[1]}`)
+    err.code = 404
+    throw err
+  }
+  await Promise.all(mounts.map(({ filepaths, mount }) => mount.gunzip(parameters[0], filepaths)))
 }

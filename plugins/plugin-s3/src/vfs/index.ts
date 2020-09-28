@@ -23,6 +23,9 @@ import { DirEntry, FStat, GlobStats, VFS, mount } from '@kui-shell/plugin-bash-l
 import { username, uid, gid } from './username'
 import findAvailableProviders, { Provider } from '../providers'
 
+import JobProvider from '../jobs'
+import CodeEngine from '../jobs/providers/CodeEngine'
+
 const strings = i18n('plugin-s3')
 
 const baseMountPath = '/s3'
@@ -457,37 +460,19 @@ class S3VFSResponder extends S3VFS implements VFS {
     }
   }
 
-  private async pollForCompletion({ REPL }: Pick<Arguments, 'REPL'>, jobname: string, nTasks: number) {
-    while (true) {
-      const json = await REPL.qexec<string>(`ibmcloud ce job get --name ${jobname} -o json`).catch(err => {
-        console.error(err)
-        return undefined
-      })
-      if (json && json.status && json.status.succeeded === nTasks) {
-        return jobname
-      } else {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-    }
-  }
-
-  private async getLogsForTask({ REPL }: Pick<Arguments, 'REPL'>, jobname: string, taskIdx: number): Promise<string[]> {
-    const logs = await REPL.qexec<string>(`ibmcloud ce kubectl logs ${jobname}-${taskIdx}-0`)
+  private async getLogsForTask(jobProvider: JobProvider, jobname: string, taskIdx: number): Promise<string[]> {
+    const logs = await jobProvider.logs(jobname, taskIdx)
     const logLines = logs.split(/\n/).filter(_ => /^GREP /.test(_))
 
     return logLines.map(_ => _.replace(/^GREP /, ''))
   }
 
-  private async getLogs(
-    args: Pick<Arguments, 'REPL' | 'parsedOptions'>,
-    jobname: string,
-    nTasks: number
-  ): Promise<string[]> {
+  private async getLogs(jobProvider: JobProvider, jobname: string, nTasks: number): Promise<string[]> {
     return flatten(
       await Promise.all(
         Array(nTasks)
           .fill(0)
-          .map((_, idx) => this.getLogsForTask(args, jobname, idx + 1))
+          .map((_, idx) => this.getLogsForTask(jobProvider, jobname, idx + 1))
       )
     )
   }
@@ -498,17 +483,21 @@ class S3VFSResponder extends S3VFS implements VFS {
     filepaths: string[]
   ): Promise<number | string[]> {
     const nTasks = opts.parsedOptions.P || 20
+    const jobProvider = new CodeEngine(opts.REPL, this.options)
 
     const perFileResults = await Promise.all(
       filepaths.map(async filepath => {
         const { bucketName, fileName } = this.split(filepath)
-        const jobname = await opts.REPL.qexec<string>(
-          `ibmcloud ce job run --jobdef vfs -e OPERATION=grep -e S3_ACCESS_KEY=76bdbf951dbb4cec85781039bee2a377 -e S3_SECRET_KEY=87d0390b0836048a3ed664917f14bd6dd1b476496342c867 -e SRC_BUCKET=${bucketName} -e SRC_OBJECT=${fileName} -e NSHARDS=${nTasks} -e PATTERN=${pattern} -ai 1-${nTasks}`
-        )
+        const jobname = await jobProvider.run('starpit/vfs', nTasks, {
+          OPERATION: 'grep',
+          SRC_BUCKET: bucketName,
+          SRC_OBJECT: fileName,
+          NSHARDS: nTasks,
+          PATTERN: pattern
+        })
 
-        await this.pollForCompletion(opts, jobname, nTasks)
-
-        return this.getLogs(opts, jobname, nTasks)
+        await jobProvider.wait(jobname, nTasks)
+        return this.getLogs(jobProvider, jobname, nTasks)
       })
     )
 
@@ -524,6 +513,12 @@ class S3VFSResponder extends S3VFS implements VFS {
     } else {
       return flatten(perFileResults)
     }
+  }
+
+  /** unzip a set of files */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async gunzip(...parameters: Parameters<VFS['gunzip']>): ReturnType<VFS['gunzip']> {
+    throw new Error('Unsupported operation')
   }
 }
 
@@ -591,6 +586,12 @@ class S3VFSForwarder extends S3VFS implements VFS {
     return opts.REPL.qexec(
       `vfs-s3 grep ${opts.REPL.encodeComponent(pattern)} ${filepaths.map(_ => opts.REPL.encodeComponent(_)).join(' ')}`
     )
+  }
+
+  /** unzip a set of files */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async gunzip(...parameters: Parameters<VFS['gunzip']>): ReturnType<VFS['gunzip']> {
+    throw new Error('Unsupported operation')
   }
 }
 
