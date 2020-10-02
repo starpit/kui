@@ -24,7 +24,7 @@ async function needle({ qexec }: REPL, method: 'get', url: string): Promise<{ st
   if (isHeadless()) {
     const needle = await import('needle')
     debug('fetch via needle', needle)
-    return needle(method, url, { follow_max: 10 }).then(_ => ({ statusCode: _.statusCode, body: _.body }))
+    return needle.default(method, url, { follow_max: 10 }).then(_ => ({ statusCode: _.statusCode, body: _.body }))
   } else if (inBrowser()) {
     // Unfortunately, we cannot rely on being able to fetch files
     // directly from a browser. For one, if the remote site does not
