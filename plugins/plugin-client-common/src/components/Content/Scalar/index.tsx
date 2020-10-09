@@ -18,13 +18,15 @@ import React from 'react'
 import {
   isMessageWithUsageModel,
   isMessageWithCode,
+  CommandCompleteEvent,
   Tab as KuiTab,
-  ScalarResponse,
+  KResponse,
   getPrimaryTabId,
   i18n,
   isCommentaryResponse,
   isHTML,
   isMarkdownResponse,
+  isMultiModalResponse,
   isReactResponse,
   isRadioTable,
   isRandomErrorResponse1,
@@ -47,10 +49,12 @@ import { BlockViewTraits } from '../../Views/Terminal/Block'
 import { isError } from '../../Views/Terminal/Block/BlockModel'
 
 const strings = i18n('plugin-client-common', 'errors')
+const TopNavSidecar = React.lazy(() => import('../../Views/Sidecar/TopNavSidecarV2'))
 
 type Props = BlockViewTraits & {
   tab: KuiTab
-  response: ScalarResponse | Error
+  response: KResponse | Error
+  completeEvent?: CommandCompleteEvent
   onRender?: (hasContent: boolean) => void
   willRemove?: () => void
   willUpdateCommand?: (command: string) => void
@@ -181,6 +185,20 @@ export default class Scalar extends React.PureComponent<Props, State> {
       } else if (isRandomErrorResponse2(response)) {
         // maybe this is an error response from some random API?
         return <Markdown tab={tab} repl={tab.REPL} source={strings('randomError2', response.errno)} />
+      } else if (isMultiModalResponse(response)) {
+        return (
+          <React.Suspense fallback={<div />}>
+            <TopNavSidecar
+              uuid={tab.uuid}
+              tab={tab}
+              active
+              response={response}
+              onRender={this.props.onRender}
+              argvNoOptions={this.props.completeEvent ? this.props.completeEvent.argvNoOptions : undefined}
+              parsedOptions={this.props.completeEvent ? this.props.completeEvent.parsedOptions : undefined}
+            />
+          </React.Suspense>
+        )
       }
     } catch (err) {
       console.error('catastrophic error rendering Scalar', err)

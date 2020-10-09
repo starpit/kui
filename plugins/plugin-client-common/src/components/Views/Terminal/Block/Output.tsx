@@ -25,6 +25,8 @@ import {
   isReactResponse,
   isMarkdownResponse,
   isMixedResponse,
+  isMultiModalResponse,
+  isNavResponse,
   isXtermResponse,
   isTable,
   eventChannelUnsafe,
@@ -191,6 +193,7 @@ export default class Output extends React.PureComponent<Props, State> {
             <Scalar
               tab={this.props.tab}
               response={this.props.model.response}
+              completeEvent={this.props.model.completeEvent}
               prefersTerminalPresentation={this.props.prefersTerminalPresentation}
               isPartOfMiniSplit={this.props.isPartOfMiniSplit}
               isWidthConstrained={this.props.isWidthConstrained}
@@ -221,6 +224,8 @@ export default class Output extends React.PureComponent<Props, State> {
       const { response } = block
       return (
         isOops(block) ||
+        isMultiModalResponse(response) ||
+        isNavResponse(response) ||
         isCommentaryResponse(response) ||
         isTabLayoutModificationResponse(response) ||
         isReactResponse(response) ||

@@ -53,6 +53,9 @@ type Props = MonacoOptions &
 
     /** Use a light theme? Default: false */
     light?: boolean
+
+    /** Size height to fit? */
+    sizeToFit?: boolean
   }
 
 interface State {
@@ -294,6 +297,15 @@ export default class Editor extends React.PureComponent<Props, State> {
         overrides
       )
       const editor = Monaco.create(state.wrapper, options)
+
+      if (props.sizeToFit) {
+        // if we know 1) the height of the content won't change, and
+        // 2) we are running in "simple" mode (this is mostly the case
+        // for inline editor components, as opposed to editor
+        // components that are intended to fill the full view), then:
+        // size the height to fit the content
+        state.wrapper.style.height = Math.min(400, editor.getContentHeight()) + 'px'
+      }
 
       const onZoom = () => {
         editor.updateOptions({ fontSize: getKuiFontSize() })

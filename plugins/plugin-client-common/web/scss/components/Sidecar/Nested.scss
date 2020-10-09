@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-@mixin sidecar-visible {
-  .repl.sidecar-visible .kui--terminal-split-container {
-    @content;
-  }
+@import '_mixins';
+@import '../Terminal/_mixins';
+
+@include NestedSidecar {
+  min-width: 0;
+  flex: 1;
+  min-height: 20rem;
 }
 
-@mixin sidecar-maximized-no-user {
-  .toggle-sidecar-maximization-button {
-    display: none;
-  }
-}
-
-@mixin NestedSidecar {
-  .kui--sidecar-nested {
-    @content;
+@include PlainTerminal {
+  @include NestedSidecar {
+    max-width: 55rem;
   }
 }
