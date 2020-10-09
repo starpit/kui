@@ -39,7 +39,7 @@ $focus-color: var(--color-brand-01);
 }
 
 /** We are using <li> for the blocks, but don't want any standard browser styling */
-li.repl-block {
+@include Block {
   list-style: none;
 }
 
@@ -73,6 +73,10 @@ body[kui-theme-style='dark'] {
   }
 }
 
+@include MaximizedBlock {
+  height: 100%;
+}
+
 /** Coloring the context border by status of the block */
 @include Scrollback {
   .repl-input:hover,
@@ -80,7 +84,7 @@ body[kui-theme-style='dark'] {
     @include show-block-action-buttons;
   }
 
-  .repl-block {
+  @include Block {
     position: relative;
     margin: 0.1875rem 0;
 

@@ -14,32 +14,14 @@
  * limitations under the License.
  */
 
-@mixin sidecar-visible {
-  .repl.sidecar-visible .kui--terminal-split-container {
-    @content;
-  }
+import { Tab } from '@kui-shell/core'
+
+interface LocationProps {
+  /** The top-level Tab in which this button is situated */
+  tab: Tab
+
+  /** The block in which this button is situated */
+  execUUID: string
 }
 
-@mixin sidecar-maximized-no-user {
-  .toggle-sidecar-maximization-button {
-    display: none;
-  }
-}
-
-@mixin NestedSidecar {
-  .kui--sidecar-nested {
-    @content;
-  }
-}
-
-@mixin NotMaximized {
-  &:not(.maximized) {
-    @content;
-  }
-}
-
-@mixin Maximized {
-  &.maximized {
-    @content;
-  }
-}
+export default LocationProps

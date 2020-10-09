@@ -24,7 +24,6 @@ import {
   ToolbarProps,
   ToolbarText,
   i18n,
-  getPrimaryTabId,
   TabLayoutChangeEvent,
   eventBus,
   eventChannelUnsafe
@@ -126,8 +125,9 @@ export class Terminal<S extends TerminalState = TerminalState> extends Container
 
     this.updateToolbar(this.state.isLive)
 
-    // tab uuid
-    const uuid = getPrimaryTabId(this.props.tab)
+    // Tab uuid, used for listening for mode focus events. This will
+    // facilitate xon/xoff as we switch tabs.
+    const { uuid } = this.props.tab
 
     const focus = () => {
       this.doFocus()

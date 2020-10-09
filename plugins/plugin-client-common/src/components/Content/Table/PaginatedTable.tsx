@@ -351,6 +351,10 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
     )
   }
 
+  protected dataAttrs() {
+    return {}
+  }
+
   public render() {
     if (!this.state) {
       return <div className="oops">Internal Error</div>
@@ -364,7 +368,7 @@ export default class PaginatedTable<P extends Props, S extends State> extends Re
         (lightweightTables ? ' kui--data-table-wrapper-lightweight flex-fill' : '')
 
       return (
-        <div className={className}>
+        <div className={className} {...this.dataAttrs()}>
           <div className="kui--screenshotable">
             {lightweightTables ? (
               this.content(true, true)

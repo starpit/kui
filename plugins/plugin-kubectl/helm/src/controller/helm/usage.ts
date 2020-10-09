@@ -14,32 +14,10 @@
  * limitations under the License.
  */
 
-@mixin sidecar-visible {
-  .repl.sidecar-visible .kui--terminal-split-container {
-    @content;
-  }
-}
+import { Arguments } from '@kui-shell/core'
+import { isUsage, KubeOptions } from '@kui-shell/plugin-kubectl'
 
-@mixin sidecar-maximized-no-user {
-  .toggle-sidecar-maximization-button {
-    display: none;
-  }
-}
-
-@mixin NestedSidecar {
-  .kui--sidecar-nested {
-    @content;
-  }
-}
-
-@mixin NotMaximized {
-  &:not(.maximized) {
-    @content;
-  }
-}
-
-@mixin Maximized {
-  &.maximized {
-    @content;
-  }
+/** Check both `helm get -h` and `helm get` */
+export default function isHelmUsage(args: Arguments<KubeOptions>, cmd: string) {
+  return isUsage(args) || new RegExp(`\\s*helm ${cmd}\\s*$`).test(args.command)
 }

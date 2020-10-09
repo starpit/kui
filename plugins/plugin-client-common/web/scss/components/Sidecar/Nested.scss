@@ -14,32 +14,31 @@
  * limitations under the License.
  */
 
-@mixin sidecar-visible {
-  .repl.sidecar-visible .kui--terminal-split-container {
-    @content;
+@import '_mixins';
+@import '../Terminal/_mixins';
+
+@include NestedSidecar {
+  min-width: 0;
+  flex: 1;
+  min-height: 20rem;
+}
+
+@include PlainTerminal {
+  @include NestedSidecar {
+    @include NotMaximized {
+      max-width: 55rem;
+      min-height: 30rem;
+    }
   }
 }
 
-@mixin sidecar-maximized-no-user {
-  .toggle-sidecar-maximization-button {
-    display: none;
-  }
-}
-
-@mixin NestedSidecar {
-  .kui--sidecar-nested {
-    @content;
-  }
-}
-
-@mixin NotMaximized {
-  &:not(.maximized) {
-    @content;
-  }
-}
-
-@mixin Maximized {
-  &.maximized {
-    @content;
+@include NestedSidecar {
+  @include Maximized {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 3rem;
+    bottom: 0;
+    height: calc(100% - 3rem);
   }
 }
