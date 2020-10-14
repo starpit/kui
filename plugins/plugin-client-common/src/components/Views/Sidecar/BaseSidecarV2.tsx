@@ -31,6 +31,9 @@ export type Props<R extends KResponse> = BaseProps & {
 export interface State {
   /** screenshotable region */
   dom?: HTMLElement
+
+  /** maximized? */
+  isMaximized?: boolean
 }
 
 export default class BaseSidecar<R extends KResponse, S extends State> extends React.PureComponent<Props<R>, S> {
@@ -61,12 +64,14 @@ export default class BaseSidecar<R extends KResponse, S extends State> extends R
     if (this.props.willChangeSize) {
       this.props.willChangeSize(Width.Maximized)
     }
+    this.setState({ isMaximized: true })
   }
 
   protected onRestore() {
     if (this.props.willChangeSize) {
       this.props.willChangeSize(this.defaultWidth())
     }
+    this.setState({ isMaximized: false })
   }
 
   protected onClose() {
@@ -84,12 +89,7 @@ export default class BaseSidecar<R extends KResponse, S extends State> extends R
   }
 
   protected width(): Required<string> {
-    switch (this.props.width) {
-      case Width.Maximized:
-        return 'visible maximized'
-      default:
-        return 'visible'
-    }
+    return 'visible' + (this.state.isMaximized ? ' maximized' : '')
   }
 
   private onScreenshot() {
@@ -112,8 +112,9 @@ export default class BaseSidecar<R extends KResponse, S extends State> extends R
     return (
       <TitleBar
         {...props}
+        notCloseable
         repl={this.props.tab.REPL}
-        width={this.props.width}
+        width={this.state.isMaximized ? Width.Maximized : this.defaultWidth()}
         fixedWidth={this.isFixedWidth()}
         onMaximize={this.onMaximize.bind(this)}
         onRestore={this.onRestore.bind(this)}

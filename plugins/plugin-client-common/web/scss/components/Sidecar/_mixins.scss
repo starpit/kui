@@ -31,3 +31,15 @@
     @content;
   }
 }
+
+@mixin NotMaximized {
+  &:not(.maximized) {
+    @content;
+  }
+}
+
+@mixin Maximized {
+  &.maximized {
+    @content;
+  }
+}

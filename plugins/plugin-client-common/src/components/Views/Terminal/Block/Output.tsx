@@ -57,6 +57,7 @@ import Else from './Else'
 import Actions from './Actions'
 import Scalar from '../../../Content/Scalar/'
 import KuiContext from '../../../Client/context'
+import { Maximizable } from '../../Sidecar/width'
 
 const strings = i18n('plugin-client-common')
 
@@ -76,7 +77,8 @@ type Props = {
   model: ProcessingBlock | FinishedBlock
   onRender: () => void
   willUpdateCommand?: (command: string) => void
-} & BlockViewTraits &
+} & Maximizable &
+  BlockViewTraits &
   BlockOperationTraits
 
 interface State {
@@ -161,6 +163,7 @@ export default class Output extends React.PureComponent<Props, State> {
               prefersTerminalPresentation={this.props.prefersTerminalPresentation}
               isPartOfMiniSplit={this.props.isPartOfMiniSplit}
               isWidthConstrained={this.props.isWidthConstrained}
+              willChangeSize={this.props.willChangeSize}
               willUpdateCommand={this.props.willUpdateCommand}
               onRender={this.onRender.bind(this)}
             />
@@ -197,6 +200,7 @@ export default class Output extends React.PureComponent<Props, State> {
               prefersTerminalPresentation={this.props.prefersTerminalPresentation}
               isPartOfMiniSplit={this.props.isPartOfMiniSplit}
               isWidthConstrained={this.props.isWidthConstrained}
+              willChangeSize={this.props.willChangeSize}
               willFocusBlock={this.props.willFocusBlock}
               willRemove={this.props.willRemove}
               willUpdateCommand={this.props.willUpdateCommand}

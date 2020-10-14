@@ -51,6 +51,14 @@ $action-hover-delay: 210ms;
   }
 }
 
+@mixin MaximizedBlock {
+  @include Block {
+    &[data-is-maximized] {
+      @content;
+    }
+  }
+}
+
 @mixin BlockHoverOrFocus {
   @include Scrollback {
     li:focus,

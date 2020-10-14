@@ -25,6 +25,20 @@
 
 @include PlainTerminal {
   @include NestedSidecar {
-    max-width: 55rem;
+    @include NotMaximized {
+      max-width: 55rem;
+      max-height: 37rem;
+    }
+  }
+}
+
+@include NestedSidecar {
+  @include Maximized {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 3rem;
+    bottom: 0;
+    height: calc(100% - 3rem);
   }
 }

@@ -326,8 +326,8 @@ export default class TopNavSidecar extends BaseSidecar<MultiModalResponse, Histo
         ? [this.nameBreadcrumb(), this.versionBreadcrumb(), this.nameHashBreadcrumb()]
         : []
 
-    // TODO
-    const showingBreadcrumbs = false
+    // we want to show the titlebar, in order to show the breadcrumbs
+    const showingBreadcrumbs = true
 
     try {
       const breadcrumbs = [this.namespaceBreadcrumb(), this.kindBreadcrumb()].concat(nameBreadCrumbs).filter(_ => _)

@@ -46,6 +46,7 @@ import renderTable from '../Table'
 import Markdown from '../Markdown'
 import { KuiContext } from '../../../'
 import RadioTableSpi from '../../spi/RadioTable'
+import { Maximizable } from '../../Views/Sidecar/width'
 import { BlockViewTraits } from '../../Views/Terminal/Block'
 import { isError } from '../../Views/Terminal/Block/BlockModel'
 
@@ -53,14 +54,15 @@ const strings = i18n('plugin-client-common', 'errors')
 const TopNavSidecar = React.lazy(() => import('../../Views/Sidecar/TopNavSidecarV2'))
 const LeftNavSidecar = React.lazy(() => import('../../Views/Sidecar/LeftNavSidecarV2'))
 
-type Props = BlockViewTraits & {
-  tab: KuiTab
-  response: KResponse | Error
-  completeEvent?: CommandCompleteEvent
-  onRender?: (hasContent: boolean) => void
-  willRemove?: () => void
-  willUpdateCommand?: (command: string) => void
-}
+type Props = Maximizable &
+  BlockViewTraits & {
+    tab: KuiTab
+    response: KResponse | Error
+    completeEvent?: CommandCompleteEvent
+    onRender?: (hasContent: boolean) => void
+    willRemove?: () => void
+    willUpdateCommand?: (command: string) => void
+  }
 
 interface State {
   catastrophicError: Error
@@ -196,6 +198,7 @@ export default class Scalar extends React.PureComponent<Props, State> {
               active
               response={response}
               onRender={this.props.onRender}
+              willChangeSize={this.props.willChangeSize}
               argvNoOptions={this.props.completeEvent ? this.props.completeEvent.argvNoOptions : undefined}
               parsedOptions={this.props.completeEvent ? this.props.completeEvent.parsedOptions : undefined}
             />
@@ -210,6 +213,7 @@ export default class Scalar extends React.PureComponent<Props, State> {
               active
               response={response}
               onRender={this.props.onRender}
+              willChangeSize={this.props.willChangeSize}
               argvNoOptions={this.props.completeEvent ? this.props.completeEvent.argvNoOptions : undefined}
               parsedOptions={this.props.completeEvent ? this.props.completeEvent.parsedOptions : undefined}
             />

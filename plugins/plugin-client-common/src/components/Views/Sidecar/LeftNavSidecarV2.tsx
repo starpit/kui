@@ -74,10 +74,6 @@ export default class LeftNavSidecar extends BaseSidecar<NavResponse, NavigationM
     }
   }
 
-  protected isFixedWidth() {
-    return true
-  }
-
   private changeCurrent(menuIdx: number, tabIdx: number) {
     this.setState(({ current }) => {
       const newCurrent: NavigationModel['current'] = Object.assign({}, current, { menuIdx, tabIdx })
@@ -130,7 +126,7 @@ export default class LeftNavSidecar extends BaseSidecar<NavResponse, NavigationM
       >
         {' '}
         {/* data-view helps with tests */}
-        {this.title({ breadcrumbs: this.current.response.breadcrumbs, notCloseable: true })}
+        {this.title({ breadcrumbs: this.current.response.breadcrumbs })}
         <div className="kui--sidecar-header-and-body zoomable">
           {this.nav()}
           {this.bodyContainer(this.current.current.tabIdx, this.current.current.menuIdx)}
