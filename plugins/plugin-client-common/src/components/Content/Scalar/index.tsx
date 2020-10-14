@@ -27,6 +27,7 @@ import {
   isHTML,
   isMarkdownResponse,
   isMultiModalResponse,
+  isNavResponse,
   isReactResponse,
   isRadioTable,
   isRandomErrorResponse1,
@@ -50,6 +51,7 @@ import { isError } from '../../Views/Terminal/Block/BlockModel'
 
 const strings = i18n('plugin-client-common', 'errors')
 const TopNavSidecar = React.lazy(() => import('../../Views/Sidecar/TopNavSidecarV2'))
+const LeftNavSidecar = React.lazy(() => import('../../Views/Sidecar/LeftNavSidecarV2'))
 
 type Props = BlockViewTraits & {
   tab: KuiTab
@@ -189,6 +191,20 @@ export default class Scalar extends React.PureComponent<Props, State> {
         return (
           <React.Suspense fallback={<div />}>
             <TopNavSidecar
+              uuid={tab.uuid}
+              tab={tab}
+              active
+              response={response}
+              onRender={this.props.onRender}
+              argvNoOptions={this.props.completeEvent ? this.props.completeEvent.argvNoOptions : undefined}
+              parsedOptions={this.props.completeEvent ? this.props.completeEvent.parsedOptions : undefined}
+            />
+          </React.Suspense>
+        )
+      } else if (isNavResponse(response)) {
+        return (
+          <React.Suspense fallback={<div />}>
+            <LeftNavSidecar
               uuid={tab.uuid}
               tab={tab}
               active

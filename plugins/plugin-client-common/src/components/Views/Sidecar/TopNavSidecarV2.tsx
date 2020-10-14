@@ -121,7 +121,6 @@ export default class TopNavSidecar extends BaseSidecar<MultiModalResponse, Histo
 
   public constructor(props: Props<MultiModalResponse>) {
     super(props)
-
     this.state = this.getState(props.tab, props.response)
   }
 

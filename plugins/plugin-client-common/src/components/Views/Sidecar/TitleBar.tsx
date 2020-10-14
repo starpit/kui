@@ -30,6 +30,9 @@ export interface Props {
   namespace?: string
   breadcrumbs?: BreadcrumbView[]
 
+  /** Is this sidecar not closeable? */
+  notCloseable?: boolean
+
   repl: REPL
   fixedWidth: boolean
   width: Width
@@ -227,7 +230,7 @@ export default class Window extends React.PureComponent<Props> {
           <div className="sidecar-window-buttons">
             {this.overflowButton()}
             {this.maximizeButton()}
-            {this.quitButton()}
+            {!this.props.notCloseable && this.quitButton()}
           </div>
         </div>
       </div>
