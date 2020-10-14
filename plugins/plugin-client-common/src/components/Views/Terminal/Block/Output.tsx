@@ -159,6 +159,7 @@ export default class Output extends React.PureComponent<Props, State> {
             <Scalar
               key={idx}
               tab={this.props.tab}
+              execUUID={hasUUID(this.props.model) && this.props.model.execUUID}
               response={part}
               prefersTerminalPresentation={this.props.prefersTerminalPresentation}
               isPartOfMiniSplit={this.props.isPartOfMiniSplit}
@@ -195,6 +196,7 @@ export default class Output extends React.PureComponent<Props, State> {
           ) : (
             <Scalar
               tab={this.props.tab}
+              execUUID={hasUUID(this.props.model) && this.props.model.execUUID}
               response={this.props.model.response}
               completeEvent={this.props.model.completeEvent}
               prefersTerminalPresentation={this.props.prefersTerminalPresentation}

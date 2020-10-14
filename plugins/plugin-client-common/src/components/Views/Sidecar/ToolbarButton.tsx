@@ -15,18 +15,11 @@
  */
 
 import React from 'react'
-import {
-  Tab as KuiTab,
-  Button,
-  ResourceWithMetadata,
-  isViewButton,
-  MultiModalResponse,
-  pexecInCurrentTab,
-  ParsedOptions
-} from '@kui-shell/core'
+import { Button, ResourceWithMetadata, isViewButton, MultiModalResponse, ParsedOptions } from '@kui-shell/core'
 
-interface Props {
-  tab: KuiTab
+import LocationProps from './Location'
+
+type Props = LocationProps & {
   button: Button
   response: MultiModalResponse
   args: {
@@ -54,13 +47,14 @@ export default class ToolbarButton<T extends ResourceWithMetadata = ResourceWith
 
   private async buttonOnclick() {
     const cmd = await this.getCommand()
-    const { tab, response, button, args } = this.props
+    const { tab, execUUID, response, button, args } = this.props
 
     if (typeof cmd === 'string') {
       if (isViewButton(button) || button.confirm) {
         return tab.REPL.qexec(cmd, undefined, undefined, { rethrowErrors: true })
       } else {
-        return pexecInCurrentTab(cmd)
+        const opts = button.inPlace ? { execUUID } : undefined
+        return tab.REPL.pexec(cmd, opts)
       }
     } else {
       cmd(tab, response, args)

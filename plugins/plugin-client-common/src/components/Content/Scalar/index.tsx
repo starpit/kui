@@ -19,7 +19,6 @@ import {
   isMessageWithUsageModel,
   isMessageWithCode,
   CommandCompleteEvent,
-  Tab as KuiTab,
   KResponse,
   getPrimaryTabId,
   i18n,
@@ -47,6 +46,7 @@ import Markdown from '../Markdown'
 import { KuiContext } from '../../../'
 import RadioTableSpi from '../../spi/RadioTable'
 import { Maximizable } from '../../Views/Sidecar/width'
+import LocationProps from '../../Views/Sidecar/Location'
 import { BlockViewTraits } from '../../Views/Terminal/Block'
 import { isError } from '../../Views/Terminal/Block/BlockModel'
 
@@ -55,8 +55,8 @@ const TopNavSidecar = React.lazy(() => import('../../Views/Sidecar/TopNavSidecar
 const LeftNavSidecar = React.lazy(() => import('../../Views/Sidecar/LeftNavSidecarV2'))
 
 type Props = Maximizable &
-  BlockViewTraits & {
-    tab: KuiTab
+  BlockViewTraits &
+  LocationProps & {
     response: KResponse | Error
     completeEvent?: CommandCompleteEvent
     onRender?: (hasContent: boolean) => void
@@ -195,6 +195,7 @@ export default class Scalar extends React.PureComponent<Props, State> {
             <TopNavSidecar
               uuid={tab.uuid}
               tab={tab}
+              execUUID={this.props.execUUID}
               active
               response={response}
               onRender={this.props.onRender}
@@ -210,6 +211,7 @@ export default class Scalar extends React.PureComponent<Props, State> {
             <LeftNavSidecar
               uuid={tab.uuid}
               tab={tab}
+              execUUID={this.props.execUUID}
               active
               response={response}
               onRender={this.props.onRender}

@@ -18,15 +18,17 @@ import React from 'react'
 import { KResponse, ParsedOptions, eventChannelUnsafe, isPopup } from '@kui-shell/core'
 
 import Width from './width'
+import LocationProps from './Location'
 import { Props as BaseProps } from './BaseSidecar'
 import TitleBar, { Props as TitleBarProps } from './TitleBar'
 
-export type Props<R extends KResponse> = BaseProps & {
-  response?: R
-  argvNoOptions?: string[]
-  parsedOptions?: ParsedOptions
-  onRender?: (hasContent: boolean) => void
-}
+export type Props<R extends KResponse> = BaseProps &
+  LocationProps & {
+    response?: R
+    argvNoOptions?: string[]
+    parsedOptions?: ParsedOptions
+    onRender?: (hasContent: boolean) => void
+  }
 
 export interface State {
   /** screenshotable region */

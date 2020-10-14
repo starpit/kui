@@ -257,11 +257,11 @@ export default class Editor extends React.PureComponent<Props, State> {
   }
 
   /** Handle Toolbar registrations */
-  private static subscribeToChanges(props: Props, editor: Monaco.ICodeEditor) {
+  private static subscribeToChanges(props: Props, editor: Monaco.ICodeEditor, readOnly: boolean) {
     if (props.willUpdateToolbar) {
       // send an initial update; note how the initial toolbarText may
       // be governed by the response
-      const msg = props.response.toolbarText || this.allClean(props)
+      const msg = (readOnly && props.response.toolbarText) || this.allClean(props) // <-- always use allClean if !readOnly
       const buttons = props.response.toolbarText ? [] : !Editor.isClearable(props) ? undefined : [ClearButton(editor)]
       props.willUpdateToolbar(msg, buttons)
 
@@ -333,7 +333,7 @@ export default class Editor extends React.PureComponent<Props, State> {
         state.wrapper.focus()
       }
 
-      const subscription = Editor.subscribeToChanges(props, editor)
+      const subscription = Editor.subscribeToChanges(props, editor, providedOptions.readOnly)
       cleaners.push(() => subscription.dispose())
 
       cleaners.push(() => {
