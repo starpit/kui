@@ -50,7 +50,8 @@ import {
   isEmpty,
   isPresentedElsewhere,
   isOutputOnly,
-  isOops
+  isOops,
+  isWithCompleteEvent
 } from './BlockModel'
 
 import Else from './Else'
@@ -190,7 +191,14 @@ export default class Output extends React.PureComponent<Props, State> {
         : undefined
 
       return (
-        <div className={'repl-result' + (isOops(this.props.model) ? ' oops' : '')} data-status-code={statusCode}>
+        <div
+          className={
+            'repl-result' +
+            (isOops(this.props.model) ? ' oops' : '') +
+            (isWithCompleteEvent(this.props.model) && isMixedResponse(this.props.model.response) ? ' flex-column' : '')
+          }
+          data-status-code={statusCode}
+        >
           {isCancelled(this.props.model) ? (
             <React.Fragment />
           ) : (

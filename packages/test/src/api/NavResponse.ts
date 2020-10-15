@@ -23,6 +23,9 @@ import { promiseEach, Breadcrumb } from '@kui-shell/core'
 import { productName } from '@kui-shell/client/config.d/name.json'
 
 interface Param {
+  /** extra title for the mocha test section? */
+  title?: string
+
   command: string
   showing: string
   modes: string[]
@@ -37,7 +40,8 @@ export class TestNavResponse {
 
   public run() {
     const { command, showing, modes, commandLinks, hrefLinks, breadcrumbs } = this.param
-    describe(`test NavResponse ${process.env.MOCHA_RUN_TARGET || ''}`, function(this: Common.ISuite) {
+    describe(`test NavResponse ${this.param.title || ''} ${process.env.MOCHA_RUN_TARGET ||
+      ''}`, function(this: Common.ISuite) {
       before(Common.before(this))
       after(Common.after(this))
 
@@ -46,7 +50,9 @@ export class TestNavResponse {
           .then(ReplExpect.onlyOk)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing(showing))
-          .then(res => Promise.all(modes.map(_ => this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_V2(res.count, _)))))
+          .then(res =>
+            Promise.all(modes.map(_ => this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_V2(res.count, _))))
+          )
           .catch(Common.oops(this, true)))
 
       if (breadcrumbs && breadcrumbs.length > 0) {
@@ -55,7 +61,7 @@ export class TestNavResponse {
             .then(ReplExpect.onlyOk)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing(showing))
-            .then(async (res) => {
+            .then(async res => {
               await this.app.client.waitForVisible(Selectors.SIDECAR_BREADCRUMBS(res.count))
               return this.app.client.getText(Selectors.SIDECAR_BREADCRUMBS(res.count))
             })
@@ -69,10 +75,14 @@ export class TestNavResponse {
             .then(ReplExpect.onlyOk)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing(showing))
-            .then(async (res) =>{
-              await Promise.all(modes.map(_ => this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_V2(res.count, _))))
+            .then(async res => {
+              await Promise.all(
+                modes.map(_ => this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_V2(res.count, _)))
+              )
               return Promise.all(
-                hrefLinks.map(link => this.app.client.waitForVisible(Selectors.SIDECAR_NAV_HREF_LINKS(res.count, link.label)))
+                hrefLinks.map(link =>
+                  this.app.client.waitForVisible(Selectors.SIDECAR_NAV_HREF_LINKS(res.count, link.label))
+                )
               )
             })
             .catch(Common.oops(this, true)))
@@ -84,8 +94,10 @@ export class TestNavResponse {
             .then(ReplExpect.onlyOk)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing(showing))
-            .then(async(res) => {
-              await Promise.all(modes.map(_ => this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_V2(res.count, _))))
+            .then(async res => {
+              await Promise.all(
+                modes.map(_ => this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_V2(res.count, _)))
+              )
               return res
             })
             .then(res =>
@@ -94,8 +106,9 @@ export class TestNavResponse {
                 await this.app.client.waitForVisible(commandLink)
                 await this.app.client.click(commandLink)
                 if (link.expect.type === 'NavResponse') {
-                  await SidecarExpect.open(res)
-                  await SidecarExpect.showing(link.expect.showing)(res)
+                  const resAfter = ReplExpect.blockAfter(res)
+                  await SidecarExpect.open(resAfter)
+                  await SidecarExpect.showing(link.expect.showing)(resAfter)
                 }
               })
             )
@@ -114,9 +127,9 @@ export const testAbout = (self: Common.ISuite) => {
       .then(SidecarExpect.open)
       .then(SidecarExpect.showing(Overview))
       .then(SidecarExpect.breadcrumbs([productName]))
-      .then(async (res) => {
+      .then(async res => {
         await self.app.client.waitForVisible(`${Selectors.SIDECAR_MODE_BUTTON_SELECTED_V2(res.count, 'about')}`)
-        
+
         if (process.env.MOCHA_RUN_TARGET === 'electron') {
           return self.app.client.execute(sidecarSelector => {
             const imageSrc = document

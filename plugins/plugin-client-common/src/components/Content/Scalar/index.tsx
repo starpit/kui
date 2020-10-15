@@ -169,11 +169,11 @@ export default class Scalar extends React.PureComponent<Props, State> {
         // <PaginatedTable {...props} />
       } else if (isMixedResponse(response)) {
         return (
-          <div className="result-vertical flex-layout" style={{ flex: 1, alignItems: 'unset' }}>
+          <React.Fragment>
             {response.map((part, idx) => (
               <Scalar {...this.props} key={idx} response={part} />
             ))}
-          </div>
+          </React.Fragment>
         )
       } else if (isReactResponse(response)) {
         return response.react
