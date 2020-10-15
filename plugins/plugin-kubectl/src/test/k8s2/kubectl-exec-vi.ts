@@ -80,8 +80,9 @@ describe(`kubectl exec vi ${process.env.MOCHA_RUN_TARGET || ''}`, function(this:
 
   it(`should use kubectl exec vi through pty`, async () => {
     try {
-      const res = await CLI.command(`kubectl exec -it ${podName} -n ${ns} -- vim -i NONE ${filename}`, this.app)
-      await ReplExpect.justOK(res)
+      const res = await CLI.command(`kubectl exec -it ${podName} -n ${ns} -- vim -i NONE ${filename}`, this.app).then(
+        ReplExpect.ok
+      )
 
       const rows = `${Selectors.SIDECAR_TAB_CONTENT(res.count)} .xterm-rows`
       const focusArea = `${Selectors.SIDECAR_TAB_CONTENT(res.count)} .xterm-helper-textarea`

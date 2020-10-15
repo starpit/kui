@@ -43,12 +43,13 @@ commands.forEach(command => {
     let res: ReplExpect.AppAndCount
     it('should create sample pod from URL', async () => {
       try {
-        res = await CLI.command(`${command} create -f ${file} ${inNamespace}`, this.app)
-        const selector = await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME(name) })(res)
+        const tableRes = await CLI.command(`${command} create -f ${file} ${inNamespace}`, this.app)
+        const selector = await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME(name) })(tableRes)
 
         await waitForGreen(this.app, selector)
         await this.app.client.waitForExist(`${selector} .clickable`)
         await this.app.client.click(`${selector} .clickable`)
+        res = ReplExpect.blockAfter(tableRes)
         await SidecarExpect.open(res)
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.showing(name))
@@ -69,7 +70,7 @@ commands.forEach(command => {
     })
 
     const currentEventCount = async (): Promise<number> => {
-      const events = await this.app.client.elements(`${Selectors.SIDECAR} .kui--kubectl-event-record`)
+      const events = await this.app.client.elements(`${Selectors.SIDECAR(res.count)} .kui--kubectl-event-record`)
       return !events || !events.value ? 0 : events.value.length
     }
 

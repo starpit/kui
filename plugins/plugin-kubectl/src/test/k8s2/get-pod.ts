@@ -172,7 +172,7 @@ commands.forEach(command => {
         await waitForGreen(this.app, selector)
         await this.app.client.waitForExist(`${selector} .clickable`)
         await this.app.client.click(`${selector} .clickable`)
-        await SidecarExpect.open(res)
+        await SidecarExpect.open(ReplExpect.blockAfter(res))
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.showing('nginx'))
           .then(SidecarExpect.toolbarText({ type: 'info', text: 'Created on', exact: false }))
@@ -259,18 +259,19 @@ commands.forEach(command => {
       }
     })
 
-    let res: ReplExpect.AppAndCount
+    let clickRes: ReplExpect.AppAndCount
     it(`should list pods via ${command} then click`, async () => {
       try {
-        res = await CLI.command(`${command} get pods ${inNamespace}`, this.app)
-        const selector = await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') })(res)
+        const tableRes = await CLI.command(`${command} get pods ${inNamespace}`, this.app)
+        const selector = await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') })(tableRes)
 
         // wait for the badge to become green
         await waitForGreen(this.app, selector)
 
         // now click on the table row
         await this.app.client.click(`${selector} .clickable`)
-        await SidecarExpect.open(res)
+        clickRes = ReplExpect.blockAfter(tableRes)
+        await SidecarExpect.open(clickRes)
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.showing('nginx'))
       } catch (err) {
@@ -280,8 +281,8 @@ commands.forEach(command => {
 
     it('should click on the sidecar maximize button', async () => {
       try {
-        await this.app.client.click(Selectors.SIDECAR_MAXIMIZE_BUTTON(res.count))
-        await this.app.client.waitForExist(Selectors.SIDECAR_FULLSCREEN(res.count))
+        await this.app.client.click(Selectors.SIDECAR_MAXIMIZE_BUTTON(clickRes.count))
+        await this.app.client.waitForExist(Selectors.SIDECAR_FULLSCREEN(clickRes.count))
       } catch (err) {
         return Common.oops(this, true)(err)
       }
@@ -289,8 +290,8 @@ commands.forEach(command => {
 
     it('should click on the sidecar maximize button to restore split screen', async () => {
       try {
-        await this.app.client.click(Selectors.SIDECAR_MAXIMIZE_BUTTON(res.count))
-        await this.app.client.waitForExist(Selectors.SIDECAR_FULLSCREEN(res.count), 20000, true)
+        await this.app.client.click(Selectors.SIDECAR_MAXIMIZE_BUTTON(clickRes.count))
+        await this.app.client.waitForExist(Selectors.SIDECAR_FULLSCREEN(clickRes.count), 20000, true)
       } catch (err) {
         return Common.oops(this, true)(err)
       }
