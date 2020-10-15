@@ -58,14 +58,16 @@ commands.forEach(command => {
 
           // now click on the table row
           await this.app.client.click(`${selector} .clickable`)
-          await SidecarExpect.open(res)
+          const resAfter = ReplExpect.blockAfter(res)
+          await SidecarExpect.open(resAfter)
             .then(SidecarExpect.mode(defaultModeForGet))
             .then(SidecarExpect.showing('nginx'))
             .then(SidecarExpect.button({ mode: 'show-node', label: 'Show Node' }))
 
           // click on Show Node button
-          await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, 'show-node'))
-          await SidecarExpect.open(res).then(SidecarExpect.kind('Node'))
+          await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(resAfter.count, 'show-node'))
+
+          await SidecarExpect.open(ReplExpect.blockAfter(resAfter)).then(SidecarExpect.kind('Node'))
         } catch (err) {
           await Common.oops(this, true)(err)
         }

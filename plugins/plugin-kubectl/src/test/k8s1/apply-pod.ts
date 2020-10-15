@@ -58,6 +58,7 @@ describe(`kubectl apply pod ${process.env.MOCHA_RUN_TARGET || ''}`, function(thi
           // now click on the table row
           console.log(`kubectl apply pod 3 ${this.title}`)
           await this.app.client.click(`${selector} .clickable`)
+          res = ReplExpect.blockAfter(res)
           await SidecarExpect.open(res)
             .then(SidecarExpect.mode(defaultModeForGet))
             .then(SidecarExpect.showing('nginx'))

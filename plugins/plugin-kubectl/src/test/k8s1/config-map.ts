@@ -65,7 +65,7 @@ describe(`kubectl configmap ${process.env.MOCHA_RUN_TARGET || ''}`, function(thi
 
           // now click on the table row
           await this.app.client.click(`${selector} .clickable`)
-          await SidecarExpect.open(res)
+          await SidecarExpect.open(ReplExpect.blockAfter(res))
             .then(SidecarExpect.mode(defaultModeForGet))
             .then(SidecarExpect.showing(name))
 

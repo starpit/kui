@@ -59,6 +59,7 @@ commands.forEach(command => {
         // now click on the table row
         console.error(`${command} apply crd 3`)
         await this.app.client.click(`${selector} .clickable`)
+        res = ReplExpect.blockAfter(res)
         await SidecarExpect.open(res)
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.showing(crdName))
