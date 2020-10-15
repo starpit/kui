@@ -57,18 +57,18 @@ describe(`kubectl configmap ${process.env.MOCHA_RUN_TARGET || ''}`, function(thi
     const listAndClick = (name: string, content?: Record<string, any>) => {
       it(`should list configmaps via ${kubectl} then click on ${name}`, async () => {
         try {
-          const res = await CLI.command(`${kubectl} get cm ${inNamespace}`, this.app)
-          const selector = await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME(name) })(res)
+          const tableRes = await CLI.command(`${kubectl} get cm ${inNamespace}`, this.app)
+          const selector = await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME(name) })(tableRes)
 
           // Note: configmaps don't really have a status, so there is nothing to wait for on "get"
           // await waitForGreen(this.app, selector)
 
           // now click on the table row
           await this.app.client.click(`${selector} .clickable`)
-          await SidecarExpect.open(ReplExpect.blockAfter(res))
+          const res = ReplExpect.blockAfter(tableRes)
+          await SidecarExpect.open(res)
             .then(SidecarExpect.mode(defaultModeForGet))
             .then(SidecarExpect.showing(name))
-
           if (content) {
             if (content.data) {
               await SidecarExpect.yaml(content.data)(res)

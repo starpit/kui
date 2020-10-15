@@ -166,7 +166,8 @@ export default class Editor extends React.PureComponent<Props, State> {
         buttons.push({
           mode: 'Save',
           label: props.content.spec.save.label || strings('saveLocalFile'),
-          kind: 'view' as const,
+          kind: 'drilldown' as const,
+          inPlace: true,
           command: async () => {
             try {
               const save = await onSave(editor.getValue())
@@ -175,6 +176,11 @@ export default class Editor extends React.PureComponent<Props, State> {
                   (save && save.toolbarText) || this.allClean(props),
                   !clearable ? undefined : [ClearButton(editor)]
                 )
+              }
+
+              /** return the command to be executed */
+              if (save && save.command) {
+                return save.command
               }
             } catch (error) {
               const err = error as SaveError
