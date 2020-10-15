@@ -56,11 +56,11 @@ commands.forEach(command => {
     const editLastApplied = (key: string, value: string, viaFile?: string) => {
       it(`should edit last applied configuration via ${command} apply edit-last-applied ${viaFile && '-f'}`, () =>
         CLI.command(`${command} apply edit-last-applied ${viaFile || `pod ${podName}`} ${inNamespace}`, this.app)
-          .then(ReplExpect.justOK)
+          .then(ReplExpect.onlyOk)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing(podName, undefined, undefined, ns))
           .then(SidecarExpect.mode(lastAppliedMode))
-          .then(async (res) => {
+          .then(async res => {
             const actualText = await Util.getValueFromMonaco(res)
             const labelsLineIdx = actualText.split(/\n/).indexOf('  labels:')
 
@@ -83,11 +83,11 @@ commands.forEach(command => {
     const viewLastApplied = (expectString: string, viaFile?: string) => {
       it(`view last applied configuration via ${command} apply view-last-applied ${viaFile && '-f'}`, () =>
         CLI.command(`${command} apply view-last-applied ${viaFile || `pod ${podName}`} ${inNamespace}`, this.app)
-          .then(ReplExpect.justOK)
+          .then(ReplExpect.onlyOk)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing(podName, undefined, undefined, ns))
           .then(SidecarExpect.mode(lastAppliedMode))
-          .then(async (res) => {
+          .then(async res => {
             const actualText = await Util.getValueFromMonaco(res)
             assert.ok(actualText.indexOf(expectString) !== -1)
           })

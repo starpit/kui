@@ -163,15 +163,16 @@ commands.forEach(command => {
     // NOTE: this is an alternative test for the click mid-creation test above, since sidecar table poller is not ready
     it(`should show summary tab if we click after creation`, async () => {
       try {
-        const selector: string = await CLI.command(
+        const res = await CLI.command(
           `${command} create -f https://raw.githubusercontent.com/kubernetes/examples/master/staging/pod ${inNamespace}`,
           this.app
-        ).then(ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') }))
+        )
+        const selector = await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') })(res)
 
         await waitForGreen(this.app, selector)
         await this.app.client.waitForExist(`${selector} .clickable`)
         await this.app.client.click(`${selector} .clickable`)
-        await SidecarExpect.open(this.app)
+        await SidecarExpect.open(res)
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.showing('nginx'))
           .then(SidecarExpect.toolbarText({ type: 'info', text: 'Created on', exact: false }))
@@ -200,7 +201,7 @@ commands.forEach(command => {
     const getListAsYAMLCommand = `${command} get pods -o yaml ${inNamespace}`
     it(`should get a list of pods in yaml form via ${getListAsYAMLCommand}`, () => {
       return CLI.command(getListAsYAMLCommand, this.app)
-        .then(ReplExpect.justOK)
+        .then(ReplExpect.onlyOk)
         .then(SidecarExpect.open)
         .then(SidecarExpect.mode('raw'))
         .then(SidecarExpect.showing(getListAsYAMLCommand))
@@ -258,18 +259,18 @@ commands.forEach(command => {
       }
     })
 
+    let res: ReplExpect.AppAndCount
     it(`should list pods via ${command} then click`, async () => {
       try {
-        const selector: string = await CLI.command(`${command} get pods ${inNamespace}`, this.app).then(
-          ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') })
-        )
+        res = await CLI.command(`${command} get pods ${inNamespace}`, this.app)
+        const selector = await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') })(res)
 
         // wait for the badge to become green
         await waitForGreen(this.app, selector)
 
         // now click on the table row
         await this.app.client.click(`${selector} .clickable`)
-        await SidecarExpect.open(this.app)
+        await SidecarExpect.open(res)
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.showing('nginx'))
       } catch (err) {
@@ -279,8 +280,8 @@ commands.forEach(command => {
 
     it('should click on the sidecar maximize button', async () => {
       try {
-        await this.app.client.click(Selectors.SIDECAR_MAXIMIZE_BUTTON)
-        await this.app.client.waitForExist(Selectors.SIDECAR_FULLSCREEN)
+        await this.app.client.click(Selectors.SIDECAR_MAXIMIZE_BUTTON(res.count))
+        await this.app.client.waitForExist(Selectors.SIDECAR_FULLSCREEN(res.count))
       } catch (err) {
         return Common.oops(this, true)(err)
       }
@@ -288,8 +289,8 @@ commands.forEach(command => {
 
     it('should click on the sidecar maximize button to restore split screen', async () => {
       try {
-        await this.app.client.click(Selectors.SIDECAR_MAXIMIZE_BUTTON)
-        await this.app.client.waitForExist(Selectors.SIDECAR_FULLSCREEN, 20000, true)
+        await this.app.client.click(Selectors.SIDECAR_MAXIMIZE_BUTTON(res.count))
+        await this.app.client.waitForExist(Selectors.SIDECAR_FULLSCREEN(res.count), 20000, true)
       } catch (err) {
         return Common.oops(this, true)(err)
       }

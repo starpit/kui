@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 IBM Corporation
+ * Copyright 2019-20 IBM Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,22 @@ import * as assert from 'assert'
 
 import { timeout, waitTimeout } from './cli'
 import * as Selectors from './selectors'
-import { Application } from 'spectron'
 import { keys as Keys } from './keys'
 import { expectArray, expectText, getValueFromMonaco, expectYAMLSubset } from './util'
-import { AppAndCount } from './repl-expect'
+import { AppAndCount, blockAfter } from './repl-expect'
 
-export const open = async (app: Application) => {
-  await app.client.waitForVisible(Selectors.SIDECAR_LAST, timeout)
-  return app
+export const open = async (res: AppAndCount) => {
+  await res.app.client.waitForVisible(Selectors.SIDECAR(res.count), waitTimeout)
+  return res
+}
+
+/** Same as open(), but in the block proceding the given block */
+export function openInBlockAfter(res: AppAndCount, delta = 1) {
+  return open(blockAfter(res, delta))
 }
 
 export const notOpen = async (res: AppAndCount) => {
-  await res.app.client.waitForVisible(Selectors.SIDECAR(res.count), timeout, true)
+  await res.app.client.waitForVisible(Selectors.SIDECAR(res.count), waitTimeout, true)
   return res
 }
 
@@ -58,10 +62,11 @@ export const keyToClose = async (res: AppAndCount) => {
   return closed(res)
 }
 
+/** Expect the given badge to exist in the sidecar header */
 export const badge = (title: string, css?: string, absent = false) => async (res: AppAndCount) => {
   await res.app.client.waitUntil(async () => {
     const badges = css
-      ? await res.app.client.getText(`${Selectors.SIDECAR_BADGES} .${css}`)
+      ? await res.app.client.getText(`${Selectors.SIDECAR_BADGES(res.count)} .${css}`)
       : await res.app.client.getText(Selectors.SIDECAR_BADGES(res.count))
 
     const idx = badges.indexOf(title)
@@ -71,7 +76,7 @@ export const badge = (title: string, css?: string, absent = false) => async (res
 }
 
 export const button = (button: { mode: string; label?: string }) => async (res: AppAndCount) => {
-  await res.app.client.waitForVisible(Selectors.SIDECAR_TOOLBAR_BUTTON(res.count, button.mode))
+  await res.app.client.waitForVisible(Selectors.SIDECAR_TOOLBAR_BUTTON(res.count, button.mode), waitTimeout)
   return res
 }
 
@@ -94,7 +99,7 @@ export const toolbarAlert = (expect: { type: string; text: string; exact?: boole
   return res
 }
 
-const show = (expected: string, selector: string) => async (res: AppAndCount) => {
+const show = (expected: string, selector: string) => async (res: AppAndCount): Promise<AppAndCount> => {
   await res.app.client.waitUntil(async () => {
     return res.app.client
       .then(() => res.app.client.waitForText(selector, timeout))
@@ -109,11 +114,14 @@ export const name = (count: number, expectedName: string) => show(expectedName, 
 
 export const heroName = (count: number, expectedName: string) => show(expectedName, Selectors.SIDECAR_HERO_TITLE(count))
 
-export const namehash = (count: number, expectedNameHash: string) => show(expectedNameHash, Selectors.SIDECAR_ACTIVATION_TITLE(count))
+export const namehash = (count: number, expectedNameHash: string) =>
+  show(expectedNameHash, Selectors.SIDECAR_ACTIVATION_TITLE(count))
 
-export const namespace = (expectedNamespace: string) => async (res: AppAndCount) => show(expectedNamespace, Selectors.SIDECAR_PACKAGE_NAME_TITLE(res.count))
+export const namespace = (expectedNamespace: string) => async (res: AppAndCount) =>
+  show(expectedNamespace, Selectors.SIDECAR_PACKAGE_NAME_TITLE(res.count))(res)
 
-export const kind = (expectedKind: string) => async (res: AppAndCount) => show(expectedKind, Selectors.SIDECAR_KIND(res.count))
+export const kind = (expectedKind: string) => async (res: AppAndCount) =>
+  show(expectedKind, Selectors.SIDECAR_KIND(res.count))(res)
 
 // expect sidecar tabs have correct `mode` and `label`
 export const modes = (expected: { mode: string; label?: string; dafaultMode?: boolean }[]) => async (
@@ -228,14 +236,15 @@ export const showing = (
   await res.app.client.waitUntil(
     async () => {
       // check selected name in sidecar
-      const sidecarSelector = `${Selectors.SIDECAR}${!expectType ? '' : '.entity-is-' + expectType}`
+      const sidecarSelector = `${Selectors.SIDECAR(res.count)}${!expectType ? '' : '.entity-is-' + expectType}`
       await res.app.client.waitForVisible(sidecarSelector)
 
       // either 'leftnav' or 'topnav'
       if (!which) {
         which = await res.app.client.getAttribute(sidecarSelector, 'data-view')
       }
-      const titleSelector = which === 'topnav' ? Selectors.SIDECAR_TITLE(res.count) : Selectors.SIDECAR_LEFTNAV_TITLE(res.count)
+      const titleSelector =
+        which === 'topnav' ? Selectors.SIDECAR_TITLE(res.count) : Selectors.SIDECAR_LEFTNAV_TITLE(res.count)
 
       return res.app.client
         .waitForText(titleSelector, timeout)

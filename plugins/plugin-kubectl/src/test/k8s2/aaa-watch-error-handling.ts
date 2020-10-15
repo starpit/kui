@@ -77,13 +77,17 @@ wdescribe(`kubectl watch error handler via watch pane ${process.env.MOCHA_RUN_TA
   const NUM_PIN = 4
 
   /** create a pod */
-  const createPod = () => {
-    return CLI.command(
+  const createPod = async () => {
+    const res = await CLI.command(
       `k create -f https://raw.githubusercontent.com/kubernetes/examples/master/staging/pod -n ${ns}`,
       this.app
     )
-      .then(ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') }))
-      .then(status => waitForGreen(this.app, status))
+
+    await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') })(res).then(status =>
+      waitForGreen(this.app, status)
+    )
+
+    return res
   }
 
   /** delete the pod */
@@ -219,18 +223,18 @@ wdescribe(`kubectl watch error handler via watch pane ${process.env.MOCHA_RUN_TA
   // continue the last test
   it('should open sidecar via watch pane, and click the sidecar title to pexec in terminal', async () => {
     try {
-      await createPod()
+      const res = await createPod()
       const N = await watchPod(NUM_PIN)
 
       // click grid to open sidecar
       await this.app.client.click(Selectors.CURRENT_GRID_BY_NAME_FOR_SPLIT(2, 'nginx'))
 
-      await SidecarExpect.open(this.app)
+      await SidecarExpect.open(res)
         .then(SidecarExpect.mode(defaultModeForGet))
         .then(SidecarExpect.showing('nginx'))
 
       // click sidecar title: nginx
-      await this.app.client.click(Selectors.SIDECAR_TITLE)
+      await this.app.client.click(Selectors.SIDECAR_TITLE(res.count))
       await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') })({ app: this.app, count: N + 1 })
 
       // still have four splits

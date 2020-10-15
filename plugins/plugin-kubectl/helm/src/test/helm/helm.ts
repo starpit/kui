@@ -75,8 +75,8 @@ describe(`helm commands ${process.env.MOCHA_RUN_TARGET || ''}`, function(this: C
 
   const checkHelmInstall = async (res: ReplExpect.AppAndCount) => {
     await ReplExpect.justOK(res)
-    await SidecarExpect.open(res.app)
-    await SidecarExpect.showingTopNav(name)(res.app)
+    await SidecarExpect.open(res)
+    await SidecarExpect.showingTopNav(name)(res)
   }
 
   it(`should create sample helm chart`, () => {
@@ -111,16 +111,20 @@ describe(`helm commands ${process.env.MOCHA_RUN_TARGET || ''}`, function(this: C
 
   help(`helm status ${name}`, ['helm', 'release', name], ['Status', 'Summary'])
 
-  it(`should show the release in sidecar via helm get`, () => {
-    return CLI.command(`helm get ${name}`, this.app)
-      .then(ReplExpect.justOK)
-      .then(SidecarExpect.open)
-      .then(SidecarExpect.showingTopNav(name))
-      .then(() => this.app.client.click(Selectors.SIDECAR_MODE_BUTTON('hooks')))
-      .then(() => this.app.client.click(Selectors.SIDECAR_MODE_BUTTON('manifest')))
-      .then(() => this.app.client.click(Selectors.SIDECAR_MODE_BUTTON('values')))
-      .then(() => this.app.client.click(Selectors.SIDECAR_MODE_BUTTON('notes')))
-      .catch(Common.oops(this, true))
+  it(`should show the release in sidecar via helm get`, async () => {
+    try {
+      const res = await CLI.command(`helm get ${name}`, this.app)
+        .then(ReplExpect.justOK)
+        .then(SidecarExpect.open)
+        .then(SidecarExpect.showingTopNav(name))
+
+      await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, 'hooks'))
+      await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, 'manifest'))
+      await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, 'values'))
+      await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, 'notes'))
+    } catch (err) {
+      await Common.oops(this, true)(err)
+    }
   })
 
   it(`should delete sample helm chart`, () => {

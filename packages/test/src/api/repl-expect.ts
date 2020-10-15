@@ -268,7 +268,6 @@ export const onlyOk = async (res: AppAndCount) =>
     .then(elts => assert.strictEqual(elts.value.length, 0))
     .then(() => res)
 
-
 /** expect just ok, and no result value */
 export const justOK = async (res: AppAndCount) => expectOK(res, { expectJustOK: true }).then(() => res)
 
@@ -320,7 +319,7 @@ export function elsewhere(expectedBody: string, N?: number) {
 
 /** Expect a CommentaryResponse */
 export function comment(expectedBody: string, expectedTitle?: string) {
-  return async (res: AppAndCount) => {
+  return async (res: AppAndCount): Promise<AppAndCount> => {
     const output = Selectors.OUTPUT_N(res.count)
 
     if (expectedTitle) {
@@ -332,7 +331,7 @@ export function comment(expectedBody: string, expectedTitle?: string) {
     const actualBody: string = await res.app.client.getText(`${output} ${Selectors.TERMINAL_CARD_BODY}`)
     assert.strictEqual(actualBody, expectedBody)
 
-    return res.app
+    return res
   }
 }
 
@@ -360,4 +359,11 @@ export function blockCount(this: ISuite) {
       }
     })
   }
+}
+
+/** Transform the given block finder to one that can find the next block */
+export function blockAfter(res: AppAndCount, delta = 1): AppAndCount {
+  return Object.assign({}, res, {
+    count: res.count + delta
+  })
 }

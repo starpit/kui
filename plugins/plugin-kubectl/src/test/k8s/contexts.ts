@@ -21,7 +21,7 @@ import * as path from 'path'
 import * as assert from 'assert'
 
 import { expandHomeDir } from '@kui-shell/core'
-import { Common, CLI, ReplExpect, SidecarExpect, Selectors, Keys } from '@kui-shell/test'
+import { Common, CLI, ReplExpect, SidecarExpect, Selectors } from '@kui-shell/test'
 import {
   waitForGreen,
   waitForRed,
@@ -57,7 +57,7 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
           .then(() => waitTillNone('namespace', undefined, name))
           .catch(err => {
             if (!errOk) {
-              return Common.oops(this)(err)
+              return Common.oops(this, true)(err)
             }
           })
       })
@@ -69,7 +69,7 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
         return CLI.command(`${kubectl} create namespace ${name}`, this.app)
           .then(ReplExpect.okWithCustom({ selector: Selectors.BY_NAME(name) }))
           .then(selector => waitForGreen(this.app, selector))
-          .catch(Common.oops(this))
+          .catch(Common.oops(this, true))
       })
     }
 
@@ -82,15 +82,15 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
         )
           .then(ReplExpect.okWithCustom({ selector: Selectors.BY_NAME('nginx') }))
           .then(selector => waitForGreen(this.app, selector))
-          .catch(Common.oops(this))
+          .catch(Common.oops(this, true))
       })
 
       it(`should show the sample pod in namespace ${ns} in sidecar via ${kubectl}, then close the sidecar`, () => {
         return CLI.command(`${kubectl} get pod nginx -n ${ns} -o yaml`, this.app)
-          .then(ReplExpect.justOK)
+          .then(ReplExpect.onlyOk)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing('nginx', undefined, undefined, ns))
-          .catch(Common.oops(this))
+          .catch(Common.oops(this, true))
       })
     }
 
@@ -130,7 +130,7 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
             newOnesFilepath
           )
         } catch (err) {
-          return Common.oops(this)(err)
+          return Common.oops(this, true)(err)
         }
       })
     }
@@ -153,7 +153,7 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
 
           assert.strictEqual(currentContextAsIndicatedByContextsTable, currentContext)
         } catch (err) {
-          return Common.oops(this)(err)
+          return Common.oops(this, true)(err)
         }
       })
     }
@@ -171,7 +171,7 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
 
           assert.ok(allContextNames.find(_ => _ === contextName))
         } catch (err) {
-          return Common.oops(this)(err)
+          return Common.oops(this, true)(err)
         }
       })
     }
@@ -190,7 +190,7 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
         return CLI.command(`${kubectl} get pods ${ns ? '-n ' + ns : ''} ${kubeconfig}`, this.app)
           .then(ReplExpect.okWithCustom({ selector: Selectors.BY_NAME(name) }))
           .then(selector => waitForGreen(this.app, selector))
-          .catch(Common.oops(this))
+          .catch(Common.oops(this, true))
       })
     }
 
@@ -198,13 +198,12 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
       it(`should open pod ${name} in sidecar, and maybe in namespace ${ns || 'nope'} and kubeconfig ${kubeconfig ||
         'nope'}`, () => {
         return CLI.command(`${kubectl} get pod ${name} ${ns ? '-n ' + ns : ''} ${kubeconfig} -o yaml`, this.app)
-          .then(ReplExpect.justOK)
+          .then(ReplExpect.onlyOk)
           .then(SidecarExpect.open)
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.yaml({ Name: 'nginx' }))
           .then(SidecarExpect.showing('nginx', undefined, undefined, ns))
-          .catch(Common.oops(this))
-          .catch(Common.oops(this))
+          .catch(Common.oops(this, true))
       })
     }
 
@@ -231,7 +230,7 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
           )
           await this.app.client.waitForExist(`${selector2}${Selectors.RADIO_BUTTON_IS_SELECTED}`)
         } catch (err) {
-          return Common.oops(this)(err)
+          return Common.oops(this, true)(err)
         }
       })
     }

@@ -55,7 +55,7 @@ describe(`kubectl source ref ${process.env.MOCHA_RUN_TARGET || ''}`, function(th
 
       await this.app.client.waitUntil(
         () =>
-          Util.getValueFromMonaco(this.app, Selectors.SOURCE_REF_N(res.count)).then(
+          Util.getValueFromMonaco(res, Selectors.SOURCE_REF_N(res.count)).then(
             Util.expectYAML({ kind: 'Deployment' }, true)
           ),
         CLI.waitTimeout

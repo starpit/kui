@@ -77,18 +77,22 @@ wdescribe(`kubectl logs getty via watch pane ${process.env.MOCHA_RUN_TARGET || '
 
   const waitForLogText = waitForTerminalText.bind(this)
 
+  let res: ReplExpect.AppAndCount
   const showLogs = (podName: string, containerName: string, label: string, hasLogs: boolean) => {
     const checkLogs = async (res: ReplExpect.AppAndCount) => {
       await Promise.resolve(res).then(ReplExpect.justOK)
       if (hasLogs) {
-        await waitForLogText('hi')
+        await waitForLogText(res, 'hi')
       }
     }
 
-    it(`should show logs for pod ${podName} container ${containerName}`, () => {
-      return CLI.command(`kubectl logs ${podName} ${containerName} -n ${ns}`, this.app)
-        .then(checkLogs)
-        .catch(Common.oops(this, true))
+    it(`should show logs for pod ${podName} container ${containerName}`, async () => {
+      try {
+        const res = await CLI.command(`kubectl logs ${podName} ${containerName} -n ${ns}`, this.app)
+        await checkLogs(res)
+      } catch (err) {
+        await Common.oops(this, true)(err)
+      }
     })
 
     if (label) {
@@ -103,11 +107,11 @@ wdescribe(`kubectl logs getty via watch pane ${process.env.MOCHA_RUN_TARGET || '
   const doRetry = (hasLogs: boolean) => {
     it('should click retry button', async () => {
       try {
-        await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON('retry-streaming'))
-        await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON('retry-streaming'))
+        await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON(res.count, 'retry-streaming'))
+        await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, 'retry-streaming'))
 
         if (hasLogs) {
-          await waitForLogText('hi')
+          await waitForLogText(res, 'hi')
         }
       } catch (err) {
         return Common.oops(this, true)(err)

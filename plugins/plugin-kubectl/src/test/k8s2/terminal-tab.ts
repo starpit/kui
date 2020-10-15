@@ -44,19 +44,21 @@ describe(`${command} Terminal tab ${process.env.MOCHA_RUN_TARGET || ''}`, functi
   const ns: string = createNS()
   allocateNS(this, ns)
 
+  let res: ReplExpect.AppAndCount
+
   const getPodAndOpenSidecar = () => {
     it(`should get pods via ${command} then click`, async () => {
       try {
-        const selector: string = await CLI.command(`${command} get pods ${podName} -n ${ns}`, this.app).then(
-          ReplExpect.okWithCustom({ selector: Selectors.BY_NAME(podName) })
-        )
+        res = await CLI.command(`${command} get pods ${podName} -n ${ns}`, this.app)
+
+        const selector = await ReplExpect.okWithCustom({ selector: Selectors.BY_NAME(podName) })(res)
 
         // wait for the badge to become green
         await waitForGreen(this.app, selector)
 
         // now click on the table row
         await this.app.client.click(`${selector} .clickable`)
-        await SidecarExpect.open(this.app)
+        await SidecarExpect.open(res)
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.showing(podName))
       } catch (err) {
@@ -65,10 +67,10 @@ describe(`${command} Terminal tab ${process.env.MOCHA_RUN_TARGET || ''}`, functi
     })
   }
 
-  const switchTo = async (mode: string) => {
-    await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON(mode))
-    await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(mode))
-    await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_SELECTED(mode))
+  const switchTo = async (res: ReplExpect.AppAndCount, mode: string) => {
+    await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON(res.count, mode))
+    await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, mode))
+    await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_SELECTED(res.count, mode))
   }
 
   /** sleep for the given number of seconds */
@@ -78,12 +80,12 @@ describe(`${command} Terminal tab ${process.env.MOCHA_RUN_TARGET || ''}`, functi
   const echoInTerminalTabAndConfirm = (ECHO_FILE: string) => {
     it('should show terminal tab', async () => {
       try {
-        await switchTo('terminal')
+        await switchTo(res, 'terminal')
         await SidecarExpect.toolbarText({
           type: 'info',
           text: `Connected to container ${containerName}`,
           exact: false
-        })(this.app)
+        })(res)
 
         await sleep(5)
 
@@ -109,9 +111,9 @@ describe(`${command} Terminal tab ${process.env.MOCHA_RUN_TARGET || ''}`, functi
   const doRetry = (toolbar: { type: string; text: string; exact: boolean }) => {
     it('should click retry button', async () => {
       try {
-        await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON('retry-streaming'))
-        await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON('retry-streaming'))
-        await SidecarExpect.toolbarText(toolbar)(this.app)
+        await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON(res.count, 'retry-streaming'))
+        await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, 'retry-streaming'))
+        await SidecarExpect.toolbarText(toolbar)(res)
       } catch (err) {
         return Common.oops(this, true)(err)
       }
@@ -122,21 +124,21 @@ describe(`${command} Terminal tab ${process.env.MOCHA_RUN_TARGET || ''}`, functi
   const exitTerminalTabAndRetry = () => {
     it('should show terminal tab and exit with error', async () => {
       try {
-        await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON('terminal'))
-        await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON('terminal'))
-        await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_SELECTED('terminal'))
+        await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON(res.count, 'terminal'))
+        await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, 'terminal'))
+        await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_SELECTED(res.count, 'terminal'))
 
         await SidecarExpect.toolbarText({
           type: 'info',
           text: `Connected to container ${containerName}`,
           exact: false
-        })(this.app)
+        })(res)
 
         await new Promise(resolve => setTimeout(resolve, 5000))
 
         this.app.client.keys(`exit 1${Keys.ENTER}`)
 
-        await SidecarExpect.toolbarText({ type: 'error', text: 'has closed', exact: false })(this.app)
+        await SidecarExpect.toolbarText({ type: 'error', text: 'has closed', exact: false })(res)
       } catch (err) {
         return Common.oops(this, true)(err)
       }
@@ -174,15 +176,15 @@ describe(`${command} Terminal tab ${process.env.MOCHA_RUN_TARGET || ''}`, functi
   it('should re-focus and xoff the terminal when we switch to a different sidecar tab', async () => {
     try {
       console.error('1')
-      await switchTo('raw')
+      await switchTo(res, 'raw')
 
       await sleep(3)
       console.error('2')
-      await switchTo('terminal')
+      await switchTo(res, 'terminal')
       await sleep(3)
 
       console.error('3')
-      const elts = await this.app.client.elements(`${Selectors.SIDECAR_TAB_CONTENT} .xterm-rows`)
+      const elts = await this.app.client.elements(`${Selectors.SIDECAR_TAB_CONTENT(res.count)} .xterm-rows`)
       console.error('3b', elts && elts.value.length)
       await this.app.client.keys(`while true; do echo hi; sleep 1; done${Keys.ENTER}`)
 
@@ -193,9 +195,9 @@ describe(`${command} Terminal tab ${process.env.MOCHA_RUN_TARGET || ''}`, functi
       const nLinesBefore = textBeforeSwitch.split(/\n/).length
       console.error('5', nLinesBefore)
 
-      await switchTo('raw')
+      await switchTo(res, 'raw')
       await sleep(10)
-      await switchTo('terminal')
+      await switchTo(res, 'terminal')
 
       const textAfterSwitch = await getText()
       const nLinesAfter = textAfterSwitch.split(/\n/).length
@@ -213,7 +215,7 @@ describe(`${command} Terminal tab ${process.env.MOCHA_RUN_TARGET || ''}`, functi
     try {
       await this.app.client.keys(Keys.ctrlC)
       await this.app.client.keys(`exit${Keys.ENTER}`)
-      await SidecarExpect.toolbarText({ type: 'error', text: 'has closed', exact: false })(this.app)
+      await SidecarExpect.toolbarText({ type: 'error', text: 'has closed', exact: false })(res)
     } catch (err) {
       await Common.oops(this, true)(err)
     }

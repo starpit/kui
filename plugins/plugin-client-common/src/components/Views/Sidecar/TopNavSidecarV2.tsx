@@ -264,6 +264,24 @@ export default class TopNavSidecar extends BaseSidecar<MultiModalResponse, Histo
     )
   }
 
+  private header() {
+    return (
+      <header className="sidecar-header">
+        <div className="header-main-content">
+          <div className="kui--sidecar-header-and-toolbar">
+            <div className="header-top-bits">
+              {this.namePart()}
+
+              <div className="header-right-bits">
+                <div className="custom-header-content">{this.badges()}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+    )
+  }
+
   private kindBreadcrumb(): BreadcrumbView {
     const { kind, onclick } = this.props.response
     return { label: kind, command: onclick && onclick.kind, className: 'kui--sidecar-kind' }
@@ -345,6 +363,7 @@ export default class TopNavSidecar extends BaseSidecar<MultiModalResponse, Histo
               breadcrumbs
             })}
           <div className="kui--sidecar-header-and-body" style={{ flexDirection: 'column' }}>
+            {this.header()}
             {this.tabs()}
           </div>
         </div>
