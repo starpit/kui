@@ -349,7 +349,10 @@ export default class TopNavSidecar extends BaseSidecar<MultiModalResponse, Histo
     const showingBreadcrumbs = true
 
     try {
-      const breadcrumbs = [this.namespaceBreadcrumb(), this.kindBreadcrumb()].concat(nameBreadCrumbs).filter(_ => _)
+      const breadcrumbs = [this.kindBreadcrumb()]
+        .concat(nameBreadCrumbs)
+        .concat(this.namespaceBreadcrumb())
+        .filter(_ => _)
 
       // Note: data-view helps with tests
       return (
