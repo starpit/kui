@@ -70,7 +70,7 @@ describe(`kubectl replay ${process.env.MOCHA_RUN_TARGET || ''}`, function(this: 
       await verifyCreation(createSelector)
       await this.app.client.waitForExist(`${createSelector} .clickable`)
       await this.app.client.click(`${createSelector} .clickable`)
-      await verifySidecar(createRes)
+      await verifySidecar(ReplExpect.blockAfter(createRes))
 
       console.error('deleting')
       const deleteRes = await CLI.command(
@@ -164,7 +164,7 @@ describe(`kubectl replay with clicks ${process.env.MOCHA_RUN_TARGET || ''}`, asy
       await this.app.client.waitForVisible(`${Selectors.OUTPUT_LAST} ${Selectors.BY_NAME('nginx')}`)
       await this.app.client.click(`${Selectors.OUTPUT_LAST} ${Selectors.BY_NAME('nginx')} .clickable`)
 
-      await SidecarExpect.open(res)
+      await SidecarExpect.openInBlockAfter(res)
         .then(SidecarExpect.mode(defaultModeForGet))
         .then(SidecarExpect.showing('nginx'))
     } catch (err) {

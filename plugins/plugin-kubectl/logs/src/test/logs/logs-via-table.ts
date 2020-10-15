@@ -85,7 +85,7 @@ wdescribe(`kubectl logs getty via table ${process.env.MOCHA_RUN_TARGET || ''}`, 
   let res: ReplExpect.AppAndCount
   const showLogs = (podName: string, containerName: string, label: string, hasLogs: boolean) => {
     const checkLogs = async (res: ReplExpect.AppAndCount) => {
-      await Promise.resolve(res).then(ReplExpect.justOK)
+      await ReplExpect.onlyOk(res)
       if (hasLogs) {
         await waitForLogText(res, 'hi')
       }
@@ -93,7 +93,7 @@ wdescribe(`kubectl logs getty via table ${process.env.MOCHA_RUN_TARGET || ''}`, 
 
     it(`should show logs for pod ${podName} container ${containerName}`, async () => {
       try {
-        const res = await CLI.command(`kubectl logs ${podName} ${containerName} -n ${ns}`, this.app)
+        res = await CLI.command(`kubectl logs ${podName} ${containerName} -n ${ns}`, this.app)
         await checkLogs(res)
       } catch (err) {
         await Common.oops(this, true)(err)
@@ -101,10 +101,13 @@ wdescribe(`kubectl logs getty via table ${process.env.MOCHA_RUN_TARGET || ''}`, 
     })
 
     if (label) {
-      it(`should show logs for label selector ${label}`, () => {
-        return CLI.command(`kubectl logs -l${label} -n ${ns}`, this.app)
-          .then(checkLogs)
-          .catch(Common.oops(this, true))
+      it(`should show logs for label selector ${label}`, async () => {
+        try {
+          res = await CLI.command(`kubectl logs -l${label} -n ${ns}`, this.app)
+          await checkLogs(res)
+        } catch (err) {
+          await Common.oops(this, true)(err)
+        }
       })
     }
   }

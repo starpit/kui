@@ -55,7 +55,7 @@ describe(`kubectl create hpa HorizontalPodAutoscaler ${process.env.MOCHA_RUN_TAR
 
         // now click on the table row
         await this.app.client.click(`${selector} .clickable`)
-        await SidecarExpect.open(res)
+        await SidecarExpect.openInBlockAfter(res)
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.showing('travelapp-hpa'))
       } catch (err) {
