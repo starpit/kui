@@ -217,7 +217,7 @@ export const expectText = (app: Application, expectedText: string, exact = true)
       }
       return actualText.indexOf(expectedText) >= 0
     }
-  })
+  }, CLI.waitTimeout)
   return app
 }
 

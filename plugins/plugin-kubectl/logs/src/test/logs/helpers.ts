@@ -69,24 +69,32 @@ export function get(this: Common.ISuite, ns: string, command: string, podName: s
   })
 }
 
-export async function clickRetry(this: Common.ISuite) {
+export async function clickRetry(this: Common.ISuite, res: ReplExpect.AppAndCount) {
   await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON(res.count, 'retry-streaming'))
   await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, 'retry-streaming'))
 }
 
-async function waitUntilPreviousIs(this: Common.ISuite, type: 'info' | 'warning', previous: boolean) {
+async function waitUntilPreviousIs(
+  this: Common.ISuite,
+  type: 'info' | 'warning',
+  previous: boolean,
+  res: ReplExpect.AppAndCount
+) {
   const click = clickRetry.bind(this)
 
+  await new Promise(resolve => setTimeout(resolve, 2000))
   await this.app.client.waitUntil(async () => {
-    if (!this.app.client.isExisting(Selectors.SIDECAR_TOOLBAR_TEXT(res.count, type))) {
-      await click()
+    if (!(await this.app.client.isExisting(Selectors.SIDECAR_TOOLBAR_TEXT(res.count, type)))) {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      await click(res)
+      await new Promise(resolve => setTimeout(resolve, 2000))
       return false
     } else {
       return true
     }
   })
 
-  await SidecarExpect.toolbarText({ type, text: previous ? 'previous instance' : '' })
+  await SidecarExpect.toolbarText({ type, text: previous ? 'previous instance' : '' })(res)
 }
 
 export function logs(
@@ -106,12 +114,12 @@ export function logs(
         `${command} logs ${podName} -c ${containerName} -n ${ns} ${previous ? '--previous' : ''}`,
         this.app
       )
-        .then(ReplExpect.justOK)
+        .then(ReplExpect.onlyOk)
         .then(SidecarExpect.open)
         .then(SidecarExpect.showing(podName, undefined, undefined, ns))
         .then(SidecarExpect.mode('logs'))
 
-      await wait()
+      await wait(res)
     } catch (err) {
       await Common.oops(this, true)
     }
@@ -125,6 +133,6 @@ export function clickPrevious(this: Common.ISuite, type: 'info' | 'warning', pre
     const mode = 'kubectl-logs-previous-toggle'
     await this.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON(res.count, mode))
     await this.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, mode))
-    await wait()
+    await wait(res)
   })
 }
