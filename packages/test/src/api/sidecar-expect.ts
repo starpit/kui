@@ -247,7 +247,7 @@ export const showing = (
         which === 'topnav' ? Selectors.SIDECAR_TITLE(res.count) : Selectors.SIDECAR_LEFTNAV_TITLE(res.count)
 
       return res.app.client
-        .waitForText(titleSelector, timeout)
+        .waitForText(titleSelector, waitThisLong)
         .then(() => res.app.client.getText(titleSelector))
         .then(name => {
           const nameMatches = expectSubstringMatchOnName
@@ -268,7 +268,7 @@ export const showing = (
           }
         })
     },
-    waitThisLong,
+    waitThisLong || waitTimeout,
     `expect action name ${expectedName} in sidecar substringOk? ${expectSubstringMatchOnName}`
   )
 
