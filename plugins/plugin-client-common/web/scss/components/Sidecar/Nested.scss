@@ -35,8 +35,8 @@
 @include NestedSidecar {
   @include Maximized {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: calc(#{$input-padding-left} + #{$repl-context-min-width} + #{$repl-context-margin-right});
+    right: $input-padding-right;
     top: 3rem;
     bottom: 0;
     height: calc(100% - 3rem);
