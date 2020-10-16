@@ -201,7 +201,7 @@ commands.forEach(command => {
     const getListAsYAMLCommand = `${command} get pods -o yaml ${inNamespace}`
     it(`should get a list of pods in yaml form via ${getListAsYAMLCommand}`, () => {
       return CLI.command(getListAsYAMLCommand, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
         .then(SidecarExpect.mode('raw'))
         .then(SidecarExpect.showing(getListAsYAMLCommand))

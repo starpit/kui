@@ -57,7 +57,7 @@ commands.forEach(command => {
         const res = await CLI.command(`${command} get pod ${podName} -n ${ns} -o yaml`, this.app)
 
         await Promise.resolve(res)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing(podName))
 

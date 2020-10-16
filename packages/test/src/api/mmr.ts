@@ -84,7 +84,7 @@ export class TestMMR {
             cmdIdx = res.count
             return res
           })
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(async res => {
             if (heroName) {
@@ -146,7 +146,7 @@ export class TestMMR {
             cmdIdx = res.count
             return res
           })
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.namespace(metadata.namespace))
           .catch(Common.oops(this, true)))
@@ -179,7 +179,7 @@ export class TestMMR {
 
       it(`should show kind ${kind} in sidecar`, () =>
         CLI.command(command, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.kind(kind))
           .catch(Common.oops(this, true)))
@@ -201,7 +201,7 @@ export class TestMMR {
 
       it(`should show badges in sidecar`, () =>
         CLI.command(command, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(res => Promise.all(badges.map(badge => SidecarExpect.badge(badge.title, badge.css)(res)))))
     })
@@ -228,7 +228,7 @@ export class TestMMR {
       const showModes = () => {
         it(`should show sidecar tabs with command=${command}`, () =>
           CLI.command(command, this.app)
-            .then(ReplExpect.onlyOk)
+            .then(ReplExpect.ok)
             .then(SidecarExpect.open)
             .then(SidecarExpect.defaultMode(defaultMode))
             .then(SidecarExpect.modes(expectModes))
@@ -405,7 +405,7 @@ export class TestMMR {
       let res: ReplExpect.AppAndCount
       it(`should show toolbar buttons in sidecar `, () =>
         CLI.command(command, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(appAndCount => {
             res = appAndCount

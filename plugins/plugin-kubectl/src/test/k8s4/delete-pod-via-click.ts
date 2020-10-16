@@ -40,7 +40,7 @@ describe(`delete pod via click ${process.env.MOCHA_RUN_TARGET}`, function(this: 
   it(`should get sample pod via ${kubectl} then click delete button`, async () => {
     try {
       const res = await CLI.command(`${kubectl} get pod nginx -o yaml ${inNamespace}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
         .then(SidecarExpect.showing('nginx', undefined, undefined, ns))
 

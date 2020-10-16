@@ -114,7 +114,7 @@ commands.forEach(command => {
 
     it(`should describe that pod via ${command}`, () => {
       return CLI.command(`${command} describe pod nginx -n ${ns}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
         .then(SidecarExpect.mode(defaultModeForGet))
         .then(SidecarExpect.showingTopNav('nginx'))
@@ -123,7 +123,7 @@ commands.forEach(command => {
 
     it(`should summarize that pod via ${command}`, async () => {
       return CLI.command(`${command} get pod nginx -n ${ns} -o yaml`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
         .then(appAndCount => {
           res = appAndCount

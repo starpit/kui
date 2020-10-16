@@ -57,7 +57,7 @@ commands.forEach(command => {
     const editLastApplied = (key: string, value: string, viaFile?: string) => {
       it(`should edit last applied configuration via ${command} apply edit-last-applied ${viaFile && '-f'}`, () =>
         CLI.command(`${command} apply edit-last-applied ${viaFile || `pod ${podName}`} ${inNamespace}`, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing(podName, undefined, undefined, ns))
           .then(SidecarExpect.mode(lastAppliedMode))
@@ -86,7 +86,7 @@ commands.forEach(command => {
     const viewLastApplied = (expectString: string, viaFile?: string) => {
       it(`view last applied configuration via ${command} apply view-last-applied ${viaFile && '-f'}`, () =>
         CLI.command(`${command} apply view-last-applied ${viaFile || `pod ${podName}`} ${inNamespace}`, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing(podName, undefined, undefined, ns))
           .then(SidecarExpect.mode(lastAppliedMode))

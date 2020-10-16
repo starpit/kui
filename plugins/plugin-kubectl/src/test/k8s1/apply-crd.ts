@@ -111,7 +111,7 @@ commands.forEach(command => {
         const res = await CLI.command(`${command} get ${kind} -n ${ns} ${crdName} -o yaml`, this.app)
         console.error(`${command} apply crd 7`)
         await Promise.resolve(res)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing(crdName))
           .catch(Common.oops(this, true))

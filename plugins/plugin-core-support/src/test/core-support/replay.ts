@@ -108,7 +108,7 @@ describe(`snapshot and replay ${process.env.MOCHA_RUN_TARGET || ''}`, function(t
   // do something to open the sidecar, so we can verify it's not open on replay
   it('should open sidecar', () =>
     CLI.command(`open ${(join(ROOT), 'package.json')}`, this.app)
-      .then(ReplExpect.onlyOk)
+      .then(ReplExpect.ok)
       .then(SidecarExpect.open)
       .catch(Common.oops(this, true)))
 

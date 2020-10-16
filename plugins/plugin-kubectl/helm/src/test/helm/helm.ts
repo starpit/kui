@@ -69,7 +69,7 @@ describe(`helm commands ${process.env.MOCHA_RUN_TARGET || ''}`, function(this: C
   })
 
   const checkHelmInstall = async (res: ReplExpect.AppAndCount) => {
-    await ReplExpect.onlyOk(res)
+    await ReplExpect.ok(res)
     await SidecarExpect.open(res)
     await SidecarExpect.showingLeftNav('Overview')(res)
   }

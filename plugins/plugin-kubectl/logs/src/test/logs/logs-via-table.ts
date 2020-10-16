@@ -85,7 +85,7 @@ wdescribe(`kubectl logs getty via table ${process.env.MOCHA_RUN_TARGET || ''}`, 
   let res: ReplExpect.AppAndCount
   const showLogs = (podName: string, containerName: string, label: string, hasLogs: boolean) => {
     const checkLogs = async (res: ReplExpect.AppAndCount) => {
-      await ReplExpect.onlyOk(res)
+      await ReplExpect.ok(res)
       if (hasLogs) {
         await waitForLogText(res, 'hi')
       }

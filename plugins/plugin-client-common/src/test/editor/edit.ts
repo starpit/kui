@@ -75,14 +75,14 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   const nonExistFilePath2 = join(TMP, nonExistFileName2)
   it('should create a new file when editing a non-existing file', () =>
     CLI.command(`edit ${nonExistFilePath}`, this.app)
-      .then(ReplExpect.onlyOk)
+      .then(ReplExpect.ok)
       .then(SidecarExpect.open)
       .then(SidecarExpect.showing(nonExistFileName))
       .catch(Common.oops(this, true)))
 
   it(`should open ${nonExistFilePath}`, () =>
     CLI.command(`open ${nonExistFilePath}`, this.app)
-      .then(ReplExpect.onlyOk)
+      .then(ReplExpect.ok)
       .then(SidecarExpect.open)
       .then(SidecarExpect.showing(nonExistFileName))
       .catch(Common.oops(this, true)))
@@ -101,7 +101,7 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   Common.localIt('should edit and save the content of a non-existing file', async () => {
     try {
       const res = await CLI.command(`edit --create ${nonExistFilePath2}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
         .then(SidecarExpect.showing(nonExistFileName2))
 
@@ -114,7 +114,7 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   Common.localIt(`should open ${nonExistFilePath2} and see changed content`, async () => {
     try {
       const res = await CLI.command(`open ${nonExistFilePath2}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
         .then(SidecarExpect.showing(nonExistFileName2))
 
@@ -147,7 +147,7 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   it('should edit but not save the content of an existing file', async () => {
     try {
       const res = await CLI.command(`edit ${tmpFilepath}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
 
       await verifyTextExist(`${Selectors.SIDECAR(res.count)} .monaco-editor .view-lines`, initialContent)(res)
@@ -161,7 +161,7 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   it('should re-open the file and see the unchanged content', async () => {
     try {
       const res = await CLI.command(`open ${tmpFilepath}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
 
       await verifyTextExist(`${Selectors.SIDECAR(res.count)} .monaco-editor .view-lines`, initialContent)(res)
@@ -174,7 +174,7 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   Common.localIt('should edit and save the content', async () => {
     try {
       const res = await CLI.command('edit /tmp/edit-file.txt', this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
 
       await verifyTextExist(`${Selectors.SIDECAR(res.count)} .monaco-editor .view-lines`, initialContent)(res)
@@ -187,7 +187,7 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   Common.localIt('should re-open the initial file and see the unchanged content', async () => {
     try {
       const res = await CLI.command(`open ${initialFilepath}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
 
       await verifyTextExist(`${Selectors.SIDECAR(res.count)} .monaco-editor .view-lines`, initialContent)(res)
@@ -198,7 +198,7 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   Common.localIt('should re-open the edited file and see the updated content', async () => {
     try {
       const res = await CLI.command(`open ${tmpFilepath}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
 
       await verifyTextExist(`${Selectors.SIDECAR(res.count)} .monaco-editor .view-lines`, updatedText)(res)
@@ -219,7 +219,7 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   Common.localIt('should edit, then paste, and still have focus', async () => {
     try {
       const res = await CLI.command(`edit ${tmpFilepath}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
 
       await verifyTextExist(`${Selectors.SIDECAR(res.count)} .monaco-editor .view-lines`, updatedText)(res)
@@ -240,7 +240,7 @@ Common.pDescribe(`editor basics ${process.env.MOCHA_RUN_TARGET || ''}`, function
   Common.localIt('should have that pasted text after refresh', async () => {
     try {
       const res = await CLI.command(`edit ${tmpFilepath}`, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
       await verifyTextExist(`${Selectors.SIDECAR(res.count)} .monaco-editor .view-lines`, finalTextAfterPasteTest)(res)
     } catch (err) {

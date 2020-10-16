@@ -72,7 +72,7 @@ describe(`kubectl label handling ${process.env.MOCHA_RUN_TARGET || ''}`, functio
       it(`should show label ${key}=${value} in the sidecar`, async () => {
         try {
           const res = await CLI.command(`${kubectl} get pod nginx -o yaml ${inNamespace}`, this.app)
-            .then(ReplExpect.onlyOk)
+            .then(ReplExpect.ok)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing('nginx', undefined, undefined, ns))
 

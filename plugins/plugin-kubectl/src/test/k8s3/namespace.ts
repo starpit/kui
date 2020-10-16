@@ -146,7 +146,7 @@ describe(`kubectl namespace CRUD ${process.env.MOCHA_RUN_TARGET || ''}`, functio
     const describeIt = (name: string) => {
       it(`should describe that namespace ${name} via ${kubectl}`, () => {
         return CLI.command(`${kubectl} describe namespace ${name}`, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing(name))
           .then(SidecarExpect.mode('summary'))
@@ -169,7 +169,7 @@ describe(`kubectl namespace CRUD ${process.env.MOCHA_RUN_TARGET || ''}`, functio
 
       it(`should show the sample pod in namespace ${ns} in sidecar via ${kubectl}`, () => {
         return CLI.command(`${kubectl} get pod nginx -n ${ns} -o yaml`, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing('nginx', undefined, undefined, ns))
           .catch(Common.oops(this, true))
@@ -180,7 +180,7 @@ describe(`kubectl namespace CRUD ${process.env.MOCHA_RUN_TARGET || ''}`, functio
       it('should delete the namespace via clicking deletion button in the sidecar', () => {
         return CLI.command(`${kubectl} get ns ${ns} -o yaml`, this.app)
           .then(async res => {
-            await ReplExpect.onlyOk(res)
+            await ReplExpect.ok(res)
             await SidecarExpect.open(res)
 
             const deletionButton = Selectors.SIDECAR_MODE_BUTTON(res.count, 'delete')

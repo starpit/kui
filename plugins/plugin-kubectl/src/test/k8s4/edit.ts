@@ -60,7 +60,7 @@ commands.forEach(command => {
       it(`should edit it via ${command} edit with name=${name || 'no-name'}`, async () => {
         try {
           res = await CLI.command(`${command} edit pod ${name || ''} ${inNamespace}`, this.app)
-            .then(ReplExpect.onlyOk)
+            .then(ReplExpect.ok)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing(nameAsShown, undefined, undefined, ns))
             .then(SidecarExpect.mode(mode))
@@ -159,7 +159,7 @@ commands.forEach(command => {
       it(`should get pod ${name}`, async () => {
         try {
           res = await CLI.command(`${command} get pod ${name} ${inNamespace} -o yaml`, this.app)
-            .then(ReplExpect.onlyOk)
+            .then(ReplExpect.ok)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing(name, undefined, undefined, ns))
         } catch (err) {

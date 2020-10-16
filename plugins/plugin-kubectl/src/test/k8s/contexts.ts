@@ -87,7 +87,7 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
 
       it(`should show the sample pod in namespace ${ns} in sidecar via ${kubectl}, then close the sidecar`, () => {
         return CLI.command(`${kubectl} get pod nginx -n ${ns} -o yaml`, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing('nginx', undefined, undefined, ns))
           .catch(Common.oops(this, true))
@@ -198,7 +198,7 @@ Common.localDescribe('kubectl context switching', function(this: Common.ISuite) 
       it(`should open pod ${name} in sidecar, and maybe in namespace ${ns || 'nope'} and kubeconfig ${kubeconfig ||
         'nope'}`, () => {
         return CLI.command(`${kubectl} get pod ${name} ${ns ? '-n ' + ns : ''} ${kubeconfig} -o yaml`, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.mode(defaultModeForGet))
           .then(SidecarExpect.yaml({ Name: 'nginx' }))

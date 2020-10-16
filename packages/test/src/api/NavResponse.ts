@@ -47,7 +47,7 @@ export class TestNavResponse {
 
       it(`should open LeftNavSidecar for known outer command=${command} showing=${showing}`, () =>
         CLI.command(command, this.app)
-          .then(ReplExpect.onlyOk)
+          .then(ReplExpect.ok)
           .then(SidecarExpect.open)
           .then(SidecarExpect.showing(showing))
           .then(res =>
@@ -58,7 +58,7 @@ export class TestNavResponse {
       if (breadcrumbs && breadcrumbs.length > 0) {
         it(`should open LeftNavSidecar with breadcrumbs for known outer command=${command} showing=${showing}`, () =>
           CLI.command(command, this.app)
-            .then(ReplExpect.onlyOk)
+            .then(ReplExpect.ok)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing(showing))
             .then(async res => {
@@ -72,7 +72,7 @@ export class TestNavResponse {
       if (hrefLinks && hrefLinks.length > 0) {
         it(`should open LeftNavSidecar with href links for known outer command=${command} showing=${showing}`, () =>
           CLI.command(command, this.app)
-            .then(ReplExpect.onlyOk)
+            .then(ReplExpect.ok)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing(showing))
             .then(async res => {
@@ -91,7 +91,7 @@ export class TestNavResponse {
       if (commandLinks && commandLinks.length > 0) {
         it(`should open LeftNavSidecar with command links for known outer command=${command} showing=${showing}`, () =>
           CLI.command(command, this.app)
-            .then(ReplExpect.onlyOk)
+            .then(ReplExpect.ok)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing(showing))
             .then(async res => {
@@ -123,7 +123,7 @@ export const testAbout = (self: Common.ISuite) => {
 
   it('should open the about window via command execution', () =>
     CLI.command('about', self.app)
-      .then(ReplExpect.onlyOk)
+      .then(ReplExpect.ok)
       .then(SidecarExpect.open)
       .then(SidecarExpect.showing(Overview))
       .then(SidecarExpect.breadcrumbs([productName]))

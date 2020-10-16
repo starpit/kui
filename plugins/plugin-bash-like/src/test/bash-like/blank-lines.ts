@@ -42,14 +42,14 @@ describe('Comments and blank line handling', function(this: Common.ISuite) {
 
   it('should handle a command with suffix comment', () =>
     CLI.command(`open ../../README.md  #hello  `, this.app)
-      .then(ReplExpect.onlyOk)
+      .then(ReplExpect.ok)
       .then(SidecarExpect.open)
       .then(SidecarExpect.showing('README.md'))
       .catch(Common.oops(this, true)))
 
   it('should handle a command with suffix comment', () =>
     CLI.command(`open ../../LICENSE ### ### # #    hello  `, this.app)
-      .then(ReplExpect.onlyOk)
+      .then(ReplExpect.ok)
       .then(SidecarExpect.open)
       .then(SidecarExpect.showing('LICENSE'))
       .catch(Common.oops(this, true)))
@@ -69,7 +69,7 @@ describe('Comments and blank line handling', function(this: Common.ISuite) {
 
   it('should handle a commented-out command with suffix comment', () =>
     CLI.command(`#open ../../README.md ### ### # #    hello  `, this.app)
-      .then(ReplExpect.onlyOk)
+      .then(ReplExpect.ok)
       .then(SidecarExpect.notOpen)
       .catch(Common.oops(this, true)))
 

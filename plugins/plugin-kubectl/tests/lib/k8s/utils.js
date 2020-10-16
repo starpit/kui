@@ -213,7 +213,7 @@ exports.doHelp = function doHelp(cmd, breadcrumbs, modes, content = '') {
   it(`should give help for known outer command=${cmd} breadcrumbs=${breadcrumbs}`, async () => {
     try {
       const res = await CLI.command(cmd, this.app)
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
 
       await this.app.client.waitForVisible(Selectors.SIDECAR_BREADCRUMBS(res.count))

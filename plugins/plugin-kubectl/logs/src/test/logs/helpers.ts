@@ -114,7 +114,7 @@ export function logs(
         `${command} logs ${podName} -c ${containerName} -n ${ns} ${previous ? '--previous' : ''}`,
         this.app
       )
-        .then(ReplExpect.onlyOk)
+        .then(ReplExpect.ok)
         .then(SidecarExpect.open)
         .then(SidecarExpect.showing(podName, undefined, undefined, ns))
         .then(SidecarExpect.mode('logs'))

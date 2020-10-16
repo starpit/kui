@@ -49,7 +49,7 @@ commands.forEach(command => {
       it(`should get pod in namespace ${ns} via ${command}`, async () => {
         try {
           const res = await CLI.command(`${command} get pod ${podName} -n ${ns} -o yaml`, this.app)
-            .then(ReplExpect.onlyOk)
+            .then(ReplExpect.ok)
             .then(SidecarExpect.open)
             .then(SidecarExpect.showing(podName, undefined, undefined, ns))
           gotRes(res)
