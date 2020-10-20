@@ -166,7 +166,7 @@ export class FlightRecorder {
                       eventBus.onCommandComplete(fakeTab.uuid, onCommandComplete)
 
                       try {
-                        await fakeTab.REPL.pexec(command, { tab: fakeTab, echo: !row.onclickSilence })
+                        await fakeTab.REPL.pexec(command, { tab: fakeTab })
                       } finally {
                         eventBus.offCommandStart(fakeTab.uuid, onCommandStart)
                         eventBus.offCommandComplete(fakeTab.uuid, onCommandComplete)

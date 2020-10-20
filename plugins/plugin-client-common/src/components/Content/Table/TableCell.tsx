@@ -53,7 +53,7 @@ export function onClickForCell(
       eventBus.emitCommandComplete(handler.completeEvent)
     })
   } else if (handler) {
-    const opts = { tab /*, echo: !row.onclickSilence */ }
+    const opts = { tab }
     if (!row.onclickExec || row.onclickExec === 'pexec') {
       return whenNothingIsSelected((evt: React.MouseEvent) => {
         evt.stopPropagation()
