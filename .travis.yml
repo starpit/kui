@@ -72,6 +72,12 @@ jobs:
     #  env: LAYERS=core
 
     #
+    # Basic arm64 tests
+    #
+    - arch: arm64
+      env: LAYERS=core
+
+    #
     # Kubernetes Tests, using an electron-based client
     #
     - env: N="k8s electron" NEEDS_K8S=true NEEDS_OC=true NEEDS_TOP=true MOCHA_RUN_TARGET=electron TEST_FROM_BUILD="${TRAVIS_BUILD_DIR}/dist/electron/Kui-linux-x64/Kui" KUI_DIST_PATH=${TEST_FROM_BUILD} NEEDS_IBMCLOUD=true NEEDS_HELM=true
