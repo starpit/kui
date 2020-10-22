@@ -16,14 +16,14 @@
 
 import * as assert from 'assert'
 
-import { timeout, waitTimeout } from './cli'
+import { waitTimeout } from './cli'
 import * as Selectors from './selectors'
 import { keys as Keys } from './keys'
 import { expectArray, expectText, getValueFromMonaco, expectYAMLSubset } from './util'
 import { AppAndCount, blockAfter } from './repl-expect'
 
 export const open = async (res: AppAndCount) => {
-  await res.app.client.waitForVisible(Selectors.SIDECAR(res.count), waitTimeout)
+  await res.app.client.$(Selectors.SIDECAR(res.count)).then(_ => _.waitForDisplayed({ timeout: waitTimeout }))
   return res
 }
 
@@ -33,22 +33,33 @@ export function openInBlockAfter(res: AppAndCount, delta = 1) {
 }
 
 export const notOpen = async (res: AppAndCount) => {
-  await res.app.client.waitForVisible(Selectors.SIDECAR(res.count), waitTimeout, true)
+  await res.app.client
+    .$(Selectors.SIDECAR(res.count))
+    .then(_ => _.waitForDisplayed({ timeout: waitTimeout, reverse: true }))
   return res
 }
 
 export const openWithFailure = async (res: AppAndCount) => {
-  return res.app.client.waitForVisible(Selectors.SIDECAR_WITH_FAILURE(res.count), waitTimeout).then(() => res)
+  return res.app.client
+    .$(Selectors.SIDECAR_WITH_FAILURE(res.count))
+    .then(_ => _.waitForDisplayed({ timeout: waitTimeout }))
+    .then(() => res)
 }
 
 /** expect open fullscreen */
 export const fullscreen = async (res: AppAndCount) => {
-  return res.app.client.waitForVisible(Selectors.SIDECAR_FULLSCREEN(res.count), waitTimeout).then(() => res)
+  return res.app.client
+    .$(Selectors.SIDECAR_FULLSCREEN(res.count))
+    .then(_ => _.waitForDisplayed({ timeout: waitTimeout }))
+    .then(() => res)
 }
 
 /** fully closed, not just minimized */
 export const fullyClosed = async (res: AppAndCount) => {
-  return res.app.client.waitForExist(Selectors.SIDECAR_FULLY_CLOSED(res.count)).then(() => res)
+  return res.app.client
+    .$(Selectors.SIDECAR_FULLY_CLOSED(res.count))
+    .then(_ => _.waitForExist())
+    .then(() => res)
 }
 
 /** either minimized or fully closed */
@@ -64,27 +75,38 @@ export const keyToClose = async (res: AppAndCount) => {
 
 /** Expect the given badge to exist in the sidecar header */
 export const badge = (title: string, css?: string, absent = false) => async (res: AppAndCount) => {
-  await res.app.client.waitUntil(async () => {
-    const badges = css
-      ? await res.app.client.getText(`${Selectors.SIDECAR_BADGES(res.count)} .${css}`)
-      : await res.app.client.getText(Selectors.SIDECAR_BADGES(res.count))
+  await res.app.client.waitUntil(
+    async () => {
+      const badges = css
+        ? await res.app.client.$$(`${Selectors.SIDECAR_BADGES(res.count)} .${css}`)
+        : await res.app.client.$$(Selectors.SIDECAR_BADGES(res.count))
 
-    const idx = badges.indexOf(title)
-    return !absent ? idx >= 0 : idx < 0
-  }, waitTimeout)
+      const badgeLabels = await Promise.all(badges.map(_ => _.getText()))
+      const idx = badgeLabels.indexOf(title)
+      return !absent ? idx >= 0 : idx < 0
+    },
+    { timeout: waitTimeout }
+  )
   return res
 }
 
 export const button = (button: { mode: string; label?: string }) => async (res: AppAndCount) => {
-  await res.app.client.waitForVisible(Selectors.SIDECAR_TOOLBAR_BUTTON(res.count, button.mode), waitTimeout)
+  await res.app.client
+    .$(Selectors.SIDECAR_TOOLBAR_BUTTON(res.count, button.mode))
+    .then(_ => _.waitForDisplayed({ timeout: waitTimeout }))
   return res
 }
 
 export const mode = (expectedMode: string) => async (res: AppAndCount) => {
-  await res.app.client.waitUntil(async () => {
-    await res.app.client.waitForVisible(`${Selectors.SIDECAR_MODE_BUTTON_SELECTED(res.count, expectedMode)}`)
-    return true
-  }, waitTimeout)
+  await res.app.client.waitUntil(
+    async () => {
+      await res.app.client
+        .$(`${Selectors.SIDECAR_MODE_BUTTON_SELECTED(res.count, expectedMode)}`)
+        .then(_ => _.isDisplayed())
+      return true
+    },
+    { timeout: waitTimeout }
+  )
 
   return res
 }
@@ -100,12 +122,15 @@ export const toolbarAlert = (expect: { type: string; text: string; exact?: boole
 }
 
 const show = (expected: string, selector: string) => async (res: AppAndCount): Promise<AppAndCount> => {
-  await res.app.client.waitUntil(async () => {
-    return res.app.client
-      .then(() => res.app.client.waitForText(selector, timeout))
-      .then(() => res.app.client.getText(selector))
-      .then(text => text === expected)
-  }, waitTimeout)
+  await res.app.client.waitUntil(
+    async () => {
+      return res.app.client
+        .$(selector)
+        .then(elt => elt.getText())
+        .then(text => text === expected)
+    },
+    { timeout: waitTimeout }
+  )
 
   return res
 }
@@ -129,33 +154,41 @@ export const modes = (expected: { mode: string; label?: string; dafaultMode?: bo
 ) =>
   Promise.all(
     expected.map(async _ => {
-      await res.app.client.waitUntil(async () => {
-        const actualMode = `${Selectors.SIDECAR_MODE_BUTTON(res.count, _.mode)}`
-        await res.app.client.waitForExist(actualMode)
+      await res.app.client.waitUntil(
+        async () => {
+          const actualModeSelector = `${Selectors.SIDECAR_MODE_BUTTON(res.count, _.mode)}`
+          const actualMode = await res.app.client.$(actualModeSelector)
+          await actualMode.waitForExist()
 
-        if (_.label && (await res.app.client.isVisible(actualMode))) {
-          const actualLabel = await res.app.client.getText(actualMode)
-          return actualLabel.toLowerCase() === _.label.toLowerCase()
-        } else {
-          return true
-        }
-      }, waitTimeout)
+          if (_.label && (await actualMode.isDisplayed())) {
+            const actualLabel = await actualMode.getText()
+            return actualLabel.toLowerCase() === _.label.toLowerCase()
+          } else {
+            return true
+          }
+        },
+        { timeout: waitTimeout }
+      )
     })
   ).then(() => res)
 
 // expect sidecar tab has the correct default tab
 export const defaultMode = (expected: { mode: string; label?: string }) => async (res: AppAndCount) => {
-  await res.app.client.waitUntil(async () => {
-    const actualMode = `${Selectors.SIDECAR_MODE_BUTTON_SELECTED(res.count, expected.mode)}`
-    await res.app.client.waitForVisible(actualMode)
+  await res.app.client.waitUntil(
+    async () => {
+      const actualModeSelector = `${Selectors.SIDECAR_MODE_BUTTON_SELECTED(res.count, expected.mode)}`
+      const actualMode = await res.app.client.$(actualModeSelector)
+      await actualMode.waitForDisplayed()
 
-    if (expected.label) {
-      const actualLabel = await res.app.client.getText(actualMode)
-      return actualLabel.toLowerCase() === expected.label.toLowerCase()
-    } else {
-      return true
-    }
-  }, waitTimeout)
+      if (expected.label) {
+        const actualLabel = await actualMode.getText()
+        return actualLabel.toLowerCase() === expected.label.toLowerCase()
+      } else {
+        return true
+      }
+    },
+    { timeout: waitTimeout }
+  )
 
   return res
 }
@@ -167,44 +200,53 @@ export const textPlainContent = (content: string) => async (res: AppAndCount) =>
 
 export const textPlainContentFromMonaco = (expectedText: string, exact = true) => async (res: AppAndCount) => {
   let idx = 0
-  await res.app.client.waitUntil(async () => {
-    const actualText = await getValueFromMonaco(res)
-    if (++idx > 5) {
-      console.error(`still waiting for plain text from monaco actualText=${actualText} expectedText=${expectedText}`)
-    }
+  await res.app.client.waitUntil(
+    async () => {
+      const actualText = await getValueFromMonaco(res)
+      if (++idx > 5) {
+        console.error(`still waiting for plain text from monaco actualText=${actualText} expectedText=${expectedText}`)
+      }
 
-    if (exact) {
-      return actualText === expectedText
-    } else {
-      return actualText.indexOf(expectedText) >= 0
-    }
-  }, waitTimeout)
+      if (exact) {
+        return actualText === expectedText
+      } else {
+        return actualText.indexOf(expectedText) >= 0
+      }
+    },
+    { timeout: waitTimeout }
+  )
 
   return res
 }
 
 export async function tableContent(res: AppAndCount, nRows: number, nCells: number) {
-  const rows = (await res.app.client.elements(`${Selectors.SIDECAR_CUSTOM_CONTENT} tr`)).value
+  const rows = await res.app.client.$$(`${Selectors.SIDECAR_CUSTOM_CONTENT} tr`)
   assert.strictEqual(nRows, rows.length, 'nRows must match')
 
-  const cells = (await res.app.client.elements(`${Selectors.SIDECAR_CUSTOM_CONTENT} td`)).value
+  const cells = await res.app.client.$$(`${Selectors.SIDECAR_CUSTOM_CONTENT} td`)
   assert.strictEqual(nCells, cells.length, 'nCells must match')
 }
 
 export const yaml = (content: object) => async (res: AppAndCount) => {
-  await res.app.client.waitUntil(async () => {
-    const ok: boolean = await getValueFromMonaco(res).then(expectYAMLSubset(content, false))
-    return ok
-  }, waitTimeout)
+  await res.app.client.waitUntil(
+    async () => {
+      const ok: boolean = await getValueFromMonaco(res).then(expectYAMLSubset(content, false))
+      return ok
+    },
+    { timeout: waitTimeout }
+  )
 
   return res
 }
 
 export async function popupTitle(res: AppAndCount, expectedTitle: string) {
-  return res.app.client.waitUntil(async () => {
-    const actualTitle = await res.app.client.getText(Selectors.SIDECAR_POPUP_HERO_TITLE(res.count))
-    return actualTitle === expectedTitle
-  }, waitTimeout)
+  return res.app.client.waitUntil(
+    async () => {
+      const actualTitle = await res.app.client.$(Selectors.SIDECAR_POPUP_HERO_TITLE(res.count)).then(_ => _.getText())
+      return actualTitle === expectedTitle
+    },
+    { timeout: waitTimeout }
+  )
 }
 
 /** expect a form in the sidecar content */
@@ -212,11 +254,16 @@ export function form(form: Record<string, string>, idPrefix = 'kui-form') {
   return async (res: AppAndCount) => {
     await Promise.all(
       Object.keys(form).map(key => {
-        return res.app.client.waitUntil(async () => {
-          const expectedValue = form[key]
-          const actualValue = await res.app.client.getValue(`${Selectors.SIDECAR_TAB_CONTENT} #${idPrefix}-${key}`)
-          return actualValue === expectedValue
-        }, waitTimeout)
+        return res.app.client.waitUntil(
+          async () => {
+            const expectedValue = form[key]
+            const actualValue = await res.app.client
+              .$(`${Selectors.SIDECAR_TAB_CONTENT} #${idPrefix}-${key}`)
+              .then(_ => _.getValue())
+            return actualValue === expectedValue
+          },
+          { timeout: waitTimeout }
+        )
       })
     )
 
@@ -237,18 +284,18 @@ export const showing = (
     async () => {
       // check selected name in sidecar
       const sidecarSelector = `${Selectors.SIDECAR(res.count)}${!expectType ? '' : '.entity-is-' + expectType}`
-      await res.app.client.waitForVisible(sidecarSelector)
+      await res.app.client.$(sidecarSelector).then(_ => _.waitForDisplayed())
 
       // either 'leftnav' or 'topnav'
       if (!which) {
-        which = await res.app.client.getAttribute(sidecarSelector, 'data-view')
+        which = (await res.app.client.$(sidecarSelector).then(_ => _.getAttribute('data-view'))) as 'leftnav' | 'topnav'
       }
       const titleSelector =
         which === 'topnav' ? Selectors.SIDECAR_TITLE(res.count) : Selectors.SIDECAR_LEFTNAV_TITLE(res.count)
 
       return res.app.client
-        .waitForText(titleSelector, waitThisLong)
-        .then(() => res.app.client.getText(titleSelector))
+        .$(titleSelector)
+        .then(_ => _.getText())
         .then(name => {
           const nameMatches = expectSubstringMatchOnName
             ? name.indexOf(expectedName) >= 0 || expectedName.indexOf(name) >= 0
@@ -256,7 +303,8 @@ export const showing = (
           if (nameMatches) {
             if (expectedPackageName) {
               return res.app.client
-                .getText(Selectors.SIDECAR_PACKAGE_NAME_TITLE(res.count))
+                .$(Selectors.SIDECAR_PACKAGE_NAME_TITLE(res.count))
+                .then(_ => _.getText())
                 .then(name =>
                   expectSubstringMatchOnName
                     ? name.search(new RegExp(expectedPackageName, 'i')) >= 0
@@ -268,15 +316,17 @@ export const showing = (
           }
         })
     },
-    waitThisLong || waitTimeout,
-    `expect action name ${expectedName} in sidecar substringOk? ${expectSubstringMatchOnName}`
+    {
+      timeout: waitThisLong || waitTimeout,
+      timeoutMsg: `expect action name ${expectedName} in sidecar substringOk? ${expectSubstringMatchOnName}`
+    }
   )
 
   if (expectedActivationId) {
     await res.app.client.waitUntil(
       async () => {
         try {
-          const actualId = await res.app.client.getText(Selectors.SIDECAR_ACTIVATION_TITLE(res.count))
+          const actualId = await res.app.client.$(Selectors.SIDECAR_ACTIVATION_TITLE(res.count)).then(_ => _.getText())
           if (actualId === expectedActivationId) {
             return true
           } else {
@@ -286,8 +336,7 @@ export const showing = (
           console.error(`error waiting for nameHash ${err.message}`, err)
         }
       },
-      waitTimeout,
-      `expect activation id ${expectedActivationId} in sidecar`
+      { timeout: waitTimeout, timeoutMsg: `expect activation id ${expectedActivationId} in sidecar` }
     )
   }
 
@@ -302,9 +351,13 @@ export const showingLeftNav = (expectedName: string) =>
 
 export function breadcrumbs(breadcrumbs: string[]) {
   return async (res: AppAndCount) => {
-    await res.app.client.waitForVisible(Selectors.SIDECAR_BREADCRUMBS(res.count))
-    await res.app.client.getText(Selectors.SIDECAR_BREADCRUMBS(res.count))
-    await expectArray(breadcrumbs)
+    const elts = await res.app.client.$$(Selectors.SIDECAR_BREADCRUMBS(res.count))
+    await Promise.all(
+      elts.map(async elt => {
+        await elt.waitForDisplayed()
+        return elt.getText()
+      })
+    ).then(expectArray(breadcrumbs))
 
     return res
   }
