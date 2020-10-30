@@ -15,7 +15,7 @@
  */
 
 import { resolve, basename } from 'path'
-import { Arguments, Registrar } from '@kui-shell/core'
+import { Arguments, Registrar, expandHomeDir } from '@kui-shell/core'
 
 import flags from './flags'
 import { KubeOptions } from './options'
@@ -25,14 +25,24 @@ import { fetchFileKustomize } from '../../lib/util/fetch-file'
 
 import { isUsage, doHelp } from '../../lib/util/help'
 
+/**
+ * Tilde expansion of the positional filepath parameter.
+ *
+ */
+function prepare(args: Arguments<KubeOptions>): string {
+  const idx = args.argvNoOptions.indexOf('kustomize')
+  const filepath = args.argvNoOptions[idx + 1]
+  return args.command.replace(new RegExp(`(\\s)${filepath}(\\b)`), `$1${expandHomeDir(filepath)}$2`)
+}
+
 const doKustomize = (command = 'kubectl') => async (args: Arguments<KubeOptions>) => {
   if (isUsage(args)) {
     return doHelp(command, args)
   } else {
-    const raw = await doExecWithStdout(args, undefined, command)
+    const raw = await doExecWithStdout(args, prepare, command)
 
     try {
-      const inputFile = resolve(args.argvNoOptions[args.argvNoOptions.indexOf('kustomize') + 1])
+      const inputFile = resolve(expandHomeDir(args.argvNoOptions[args.argvNoOptions.indexOf('kustomize') + 1]))
       const yaml = await fetchFileKustomize(args.REPL, inputFile)
 
       const yamlMode = {
