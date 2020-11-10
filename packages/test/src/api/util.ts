@@ -190,16 +190,14 @@ export const getValueFromMonaco = async (
     throw err
   }
 
-  return res.app.client
-    .execute(selector => {
-      try {
-        return document.querySelector(selector)['getValueForTests']()
-      } catch (err) {
-        console.error('error in getValueFromMonaco1', err)
-        // intentionally returning undefined
-      }
-    }, selector)
-    .then(_ => _.value)
+  return res.app.client.execute(selector => {
+    try {
+      return ((document.querySelector(selector) as any) as { getValueForTests: () => string }).getValueForTests()
+    } catch (err) {
+      console.error('error in getValueFromMonaco1', err)
+      // intentionally returning undefined
+    }
+  }, selector)
 }
 
 export const waitForXtermInput = (app: Application, N: number) => {
@@ -332,17 +330,20 @@ export function uniqueFileForSnapshot() {
 /** Click the close button on a block, and expect it to be gone */
 export async function removeBlock(res: AppAndCount) {
   const N = res.count
-  await res.app.client.moveToObject(Selectors.PROMPT_N(N))
-  await res.app.client.waitForVisible(Selectors.BLOCK_REMOVE_BUTTON(N))
-  await res.app.client.click(Selectors.BLOCK_REMOVE_BUTTON(N))
+  await res.app.client.$(Selectors.PROMPT_N(N)).then(_ => _.moveTo())
+
+  const removeButton = await res.app.client.$(Selectors.BLOCK_REMOVE_BUTTON(N))
+  await removeButton.waitForDisplayed()
+  await removeButton.click()
 }
 
 /** Switch sidecar tab */
 export function switchToTab(mode: string) {
   return async (res: AppAndCount) => {
-    await res.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON(res.count, mode))
-    await res.app.client.click(Selectors.SIDECAR_MODE_BUTTON(res.count, mode))
-    await res.app.client.waitForVisible(Selectors.SIDECAR_MODE_BUTTON_SELECTED(res.count, mode))
+    const tab = await res.app.client.$(Selectors.SIDECAR_MODE_BUTTON(res.count, mode))
+    await tab.waitForDisplayed()
+    await tab.click()
+    await res.app.client.$(Selectors.SIDECAR_MODE_BUTTON_SELECTED(res.count, mode)).then(_ => _.waitForDisplayed())
     return res
   }
 }

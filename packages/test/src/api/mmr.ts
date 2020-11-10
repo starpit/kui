@@ -244,7 +244,7 @@ export class TestMMR {
         await this.app.client.$(sel).then(_ => _.waitForExist())
 
         await this.app.client.execute(sel => {
-          document.querySelector(sel).focus()
+          ;(document.querySelector(sel) as HTMLElement).focus()
         }, sel)
 
         const elt = await this.app.client.$(sel)
@@ -426,25 +426,31 @@ export class TestMMR {
           .then(async ({ count }) => {
             const testTree = async (nodes: TreeItem[]) => {
               await promiseEach(nodes, async node => {
-                await this.app.client.waitForVisible(Selectors.TREE_LIST(count, node.id))
-                await this.app.client.click(Selectors.TREE_LIST(count, node.id))
+                const treeList = await this.app.client.$(Selectors.TREE_LIST(count, node.id))
+                await treeList.waitForDisplayed()
+                await treeList.click()
 
                 if (node.contentType === 'text/plain') {
                   await SidecarExpect.textPlainContentFromMonaco(node.content)({ app: this.app, count })
                 } else if (node.contentType === 'yaml') {
-                  await this.app.client.waitUntil(async () => {
-                    const actualText = await this.app.client.getText(
-                      `${Selectors.SIDECAR(count)} .monaco-editor .view-lines`
-                    )
-                    return actualText.replace(/\s+$/, '') === node.content
-                  }, 20000)
+                  await this.app.client.waitUntil(
+                    async () => {
+                      const actualText = await this.app.client
+                        .$(`${Selectors.SIDECAR(count)} .monaco-editor .view-lines`)
+                        .then(_ => _.getText())
+                      return actualText.replace(/\s+$/, '') === node.content
+                    },
+                    { timeout: 20000 }
+                  )
                 }
 
                 if (node.children) {
-                  await this.app.client.waitForVisible(Selectors.TREE_LIST_EXPANDED(count, node.id))
+                  await this.app.client.$(Selectors.TREE_LIST_EXPANDED(count, node.id)).then(_ => _.waitForDisplayed())
                   return testTree(node.children)
                 } else {
-                  await this.app.client.waitForVisible(Selectors.TREE_LIST_AS_BUTTON_SELECTED(count, node.id))
+                  await this.app.client
+                    .$(Selectors.TREE_LIST_AS_BUTTON_SELECTED(count, node.id))
+                    .then(_ => _.waitForDisplayed())
                 }
               })
             }

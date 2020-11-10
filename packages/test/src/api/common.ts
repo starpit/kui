@@ -64,7 +64,13 @@ async function writeCodeCoverage(app: Application) {
   if (codeCoverageDesired() && app && app.client) {
     console.log('Writing code coverage data')
     await app.client.executeAsync(
-      (tempDirectory: string, nycModule: string, root: string, TMP: string, done: () => void) => {
+      function() {
+        const tempDirectory: string = arguments[0] // eslint-disable-line prefer-rest-params
+        const nycModule: string = arguments[1] // eslint-disable-line prefer-rest-params
+        const root: string = arguments[2] // eslint-disable-line prefer-rest-params
+        const TMP: string = arguments[3] // eslint-disable-line prefer-rest-params
+        const done: () => void = arguments[4] // eslint-disable-line prefer-rest-params
+
         // Notes: in several places, the nyc constructor assumes
         // process.cwd() exists; in some of our tests, e.g. those that
         // cd around, this might not be the case. So: before we invoke

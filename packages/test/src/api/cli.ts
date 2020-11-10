@@ -155,16 +155,14 @@ export const waitForSession = async (ctx: Common.ISuite, noProxySessionWait = fa
 }
 
 export const getTextContent = async (app: Application, selector: string) => {
-  return app.client
-    .execute(selector => {
-      try {
-        return document.querySelector(selector).textContent
-      } catch (err) {
-        console.error('error in getTextContent', err)
-        // intentionally returning undefined
-      }
-    }, selector)
-    .then(_ => _.value)
+  return app.client.execute(selector => {
+    try {
+      return document.querySelector(selector).textContent
+    } catch (err) {
+      console.error('error in getTextContent', err)
+      // intentionally returning undefined
+    }
+  }, selector)
 }
 
 /** wait for the result of a cli.command */
