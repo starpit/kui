@@ -43,7 +43,7 @@ exports.waitForGreen = async (app, selector) => {
   const yellowBadge = `${selector} [data-tag="badge"].yellow-background`
 
   try {
-    await app.client.$(yellowBadge, CLI.waitTimeout, true).then(_ => _.waitForExist())
+    await app.client.$(yellowBadge).then(_ => _.waitForExist({ timeout: CLI.waitTimeout, reverse: true }))
   } catch (err) {
     console.log(`Creation is still yellow after ${CLI.waitTimeout} ${selector}`)
     const text = await app.client.$(badge).then(_ => _.getText())

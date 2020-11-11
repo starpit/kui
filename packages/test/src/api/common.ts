@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 IBM Corporation
+ * Copyright 2019-2020 IBM Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,6 +140,8 @@ interface SpectronOptions {
   webdriverLogPath?: string
 }
 
+const waitTimeout = parseInt(process.env.TIMEOUT) || 60000
+
 const prepareElectron = (popup: string[]) => {
   const Application = require('spectron').Application
   const electron = require('electron') // relative to __dirname
@@ -151,7 +153,7 @@ const prepareElectron = (popup: string[]) => {
     // chromeDriverLogPath: '/tmp/cd.log',
     // webdriverLogPath: '/tmp',
     startTimeout: parseInt(process.env.TIMEOUT) || 60000, // see https://github.com/IBM/kui/issues/2227
-    waitTimeout: parseInt(process.env.TIMEOUT) || 60000
+    waitTimeout
   }
 
   /* if (!popup && (process.env.HEADLESS !== undefined || process.env.TRAVIS_JOB_ID !== undefined)) {
@@ -316,6 +318,12 @@ export const before = (ctx: ISuite, options?: BeforeOptions): HookFunction => {
 
       ctx.timeout(process.env.TIMEOUT || 60000)
       await start()
+
+      // see https://github.com/electron-userland/spectron/issues/763
+      // and https://github.com/webdriverio/webdriverio/issues/6092
+      // in short: with webdriverio v5+, the implicit timeout has to be 0
+      // but spectron is hard-coded to have implicit==pageLoad==script
+      ctx.app.client.setTimeout({ implicit: 0, pageLoad: waitTimeout, script: waitTimeout })
 
       if (afterStart) {
         await afterStart()

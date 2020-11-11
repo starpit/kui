@@ -163,13 +163,11 @@ function expectOK<T extends number | string | boolean | ElementArray | Applicati
     .then(res => res as T)
 }
 
-export const okBroken = async (res: AppAndCount) =>
+export const ok = async (res: AppAndCount) =>
   expectOK<number>(res, { passthrough: true })
     .then(N => res.app.client.$$(Selectors.LIST_RESULTS_BY_NAME_N(N, res.splitIndex)))
     .then(elts => assert.strictEqual(elts.length, 0))
     .then(() => res)
-
-export const ok = async (res: AppAndCount) => expectOK<number>(res, { passthrough: true }).then(() => res)
 
 export const error = (statusCode: number | string, expect?: string) => async (res: AppAndCount) =>
   expectOK(res, {
