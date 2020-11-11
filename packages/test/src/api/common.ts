@@ -136,8 +136,8 @@ interface SpectronOptions {
   port?: number
   path?: typeof Electron | string
   args?: string[]
-  chromeDriverLogPath: string
-  webdriverLogPath: string
+  chromeDriverLogPath?: string
+  webdriverLogPath?: string
 }
 
 const prepareElectron = (popup: string[]) => {
@@ -148,8 +148,8 @@ const prepareElectron = (popup: string[]) => {
   const opts: SpectronOptions = {
     env: {},
     chromeDriverArgs: ['--no-sandbox'],
-    chromeDriverLogPath: '/tmp/cd.log',
-    webdriverLogPath: '/tmp/cd.log',
+    // chromeDriverLogPath: '/tmp/cd.log',
+    // webdriverLogPath: '/tmp/cd.log',
     startTimeout: parseInt(process.env.TIMEOUT) || 60000, // see https://github.com/IBM/kui/issues/2227
     waitTimeout: parseInt(process.env.TIMEOUT) || 60000
   }

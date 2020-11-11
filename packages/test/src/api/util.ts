@@ -310,15 +310,21 @@ export async function tabCount(app: Application): Promise<number> {
 /** Close all except the first tab */
 export function closeAllExceptFirstTab(this: Common.ISuite) {
   it('should close all but first tab', async () => {
-    let nInitialTabs = await tabCount(this.app)
-    while (nInitialTabs > 1) {
-      const N = nInitialTabs--
-      await this.app.client.$(Selectors.TOP_TAB_CLOSE_N(N)).then(_ => _.click())
-      await this.app.client
-        .$(Selectors.TAB_N(N))
-        .then(_ => _.waitForExist({ timeout: 5000, reverse: true }))
-        .then(() => this.app.client.$(Selectors.TAB_SELECTED_N(N - 1)))
-        .then(_ => _.waitForDisplayed())
+    try {
+      let nInitialTabs = await tabCount(this.app)
+
+      while (nInitialTabs > 1) {
+        const N = nInitialTabs--
+
+        await this.app.client.$(Selectors.TOP_TAB_CLOSE_N(N)).then(_ => _.click())
+
+        await this.app.client.waitUntil(async () => {
+          const currentCount = await tabCount(this.app)
+          return currentCount === N - 1
+        })
+      }
+    } catch (err) {
+      await Common.oops(this, true)(err)
     }
   })
 }
