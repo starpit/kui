@@ -149,7 +149,7 @@ const prepareElectron = (popup: string[]) => {
     env: {},
     chromeDriverArgs: ['--no-sandbox'],
     // chromeDriverLogPath: '/tmp/cd.log',
-    // webdriverLogPath: '/tmp/cd.log',
+    // webdriverLogPath: '/tmp',
     startTimeout: parseInt(process.env.TIMEOUT) || 60000, // see https://github.com/IBM/kui/issues/2227
     waitTimeout: parseInt(process.env.TIMEOUT) || 60000
   }

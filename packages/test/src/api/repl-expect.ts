@@ -163,11 +163,13 @@ function expectOK<T extends number | string | boolean | ElementArray | Applicati
     .then(res => res as T)
 }
 
-export const ok = async (res: AppAndCount) =>
+export const okBroken = async (res: AppAndCount) =>
   expectOK<number>(res, { passthrough: true })
     .then(N => res.app.client.$$(Selectors.LIST_RESULTS_BY_NAME_N(N, res.splitIndex)))
     .then(elts => assert.strictEqual(elts.length, 0))
     .then(() => res)
+
+export const ok = async (res: AppAndCount) => expectOK<number>(res, { passthrough: true }).then(() => res)
 
 export const error = (statusCode: number | string, expect?: string) => async (res: AppAndCount) =>
   expectOK(res, {
@@ -336,15 +338,18 @@ export function tableWithNRows(N: number) {
 export function elsewhere(expectedBody: string, N?: number) {
   return async (res: AppAndCount) => {
     let idx = 0
-    await res.app.client.waitUntil(async () => {
-      const actualBody = await res.app.client.$(
-        Selectors.OUTPUT_N(res.count, N === undefined ? res.splitIndex : N)
-      ).then(_ => _.getText())
-      if (++idx > 5) {
-        console.error(`still waiting for body; actual=${actualBody}; expected=${expectedBody}`)
-      }
-      return actualBody === expectedBody
-    }, { timeout: waitTimeout })
+    await res.app.client.waitUntil(
+      async () => {
+        const actualBody = await res.app.client
+          .$(Selectors.OUTPUT_N(res.count, N === undefined ? res.splitIndex : N))
+          .then(_ => _.getText())
+        if (++idx > 5) {
+          console.error(`still waiting for body; actual=${actualBody}; expected=${expectedBody}`)
+        }
+        return actualBody === expectedBody
+      },
+      { timeout: waitTimeout }
+    )
 
     return res.app
   }

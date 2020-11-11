@@ -53,7 +53,7 @@ export class TestNavResponse {
           .then(res =>
             Promise.all(
               modes.map(_ =>
-                this.app.client.$(Selectors.SIDECAR_MODE_BUTTON_V2(res.count, _)).then(_ => _.waitForDisplayed)
+                this.app.client.$(Selectors.SIDECAR_MODE_BUTTON_V2(res.count, _)).then(_ => _.waitForDisplayed())
               )
             )
           )
