@@ -1,0 +1,36 @@
+name: Linux-Core-Browser
+
+on: [push, pull_request]
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Run Tests
+      env:
+        TRAVIS_HOME: $GITHUB_WORKSPACE
+        TRAVIS_BUILD_DIR: $GITHUB_WORKSPACE
+        TRAVIS_JOB_ID: $GITHUB_RUN_ID
+        TRAVIS_OS_NAME: linux
+        TRAVIS_CPU_ARCH: amd64
+        CLIENT: default
+        MOCHA_RUN_TARGET: webpack
+        KUI_USE_PROXY: true
+        NEEDS_MINIO: true
+      run: ./tools/travis/install.sh && npx concurrently -n CORE,SUP1,EDIT,SUP2,BASH 'npm run test1 core' 'npm run test2 core-support' 'npm run test3 editor' 'npm run test4 core-support2' 'npm run test5 bash-like'
