@@ -41,6 +41,8 @@ describe('Tab completion core', function(this: Common.ISuite) {
   touch(join(tmp2.name, 'foo bar1'))
   touch(join(tmp2.name, 'foo bar2'))
 
+  Common.localIt('should tab complete the the /kui/ vfs', () => tabby(this, `ls /ku`, `ls /kui/`))
+
   Common.localIt('should tab complete the ../../packages/core directory', () =>
     tabby(this, `lls ${ROOT}/../../../packages/co`, `lls ${ROOT}/../../../packages/core/`)
   )

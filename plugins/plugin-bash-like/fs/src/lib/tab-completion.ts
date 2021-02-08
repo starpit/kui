@@ -28,6 +28,7 @@ import {
 } from '@kui-shell/core'
 
 import { ls } from '../vfs/delegates'
+import { findMatchingMounts } from '../vfs/index'
 import { GlobStats } from '../lib/glob'
 
 function findMatchingFilesFrom(files: GlobStats[], dirToScan: string, last: string, lastIsDir: boolean) {
@@ -82,6 +83,21 @@ async function completeLocalFiles(
   return (await tab.REPL.rexec<CompletionResponse[]>(`fscomplete -- "${toBeCompleted}"`)).content
 }
 
+async function doCompleteWithMounts(path: string, originalErr?: Error) {
+  try {
+    const mounts = await findMatchingMounts(path)
+    if (mounts) {
+      return mounts.map(mount => `${mount.mountPath.replace(path, '')}/`)
+    } else if (originalErr) {
+      console.error('tab completion vfs.ls error', originalErr)
+      throw originalErr
+    }
+  } catch (err) {
+    console.error('tab completion vfs match mounts error', err)
+    throw err
+  }
+}
+
 async function doComplete(args: Arguments) {
   const last = args.command.substring(args.command.indexOf('-- ') + '-- '.length).replace(/^"(.*)"$/, '$1')
 
@@ -96,10 +112,13 @@ async function doComplete(args: Arguments) {
       // Note: by passing a: true, we effect an `ls -a`, which will give us dot files
       const dirToScan = expandHomeDir(dirname)
       const fileList = await ls({ tab: args.tab, REPL: args.REPL, parsedOptions: { a: true } }, [dirToScan])
-      return findMatchingFilesFrom(fileList, dirToScan, last, lastIsDir)
+      const matchingFiles = findMatchingFilesFrom(fileList, dirToScan, last, lastIsDir)
+
+      return matchingFiles && matchingFiles.content && matchingFiles.content.length !== 0
+        ? matchingFiles
+        : doCompleteWithMounts(last)
     } catch (err) {
-      console.error('tab completion vfs.ls error', err)
-      throw err
+      return doCompleteWithMounts(last, err)
     }
   }
 }
