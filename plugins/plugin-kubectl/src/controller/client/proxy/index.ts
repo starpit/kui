@@ -15,8 +15,8 @@
  */
 
 import Debug from 'debug'
-import { onQuit, offQuit } from '@kui-shell/core'
 import { ChildProcess } from 'child_process'
+import { expandHomeDir, onQuit, offQuit } from '@kui-shell/core'
 
 import { onKubectlConfigChangeEvents, offKubectlConfigChangeEvents } from '../../..'
 
@@ -39,6 +39,9 @@ type State = {
 
 /** State of current kubectl proxy */
 let currentProxyState: Promise<State>
+
+/** State for other configs */
+const currentProxyStateForKubeconfig: Record<string, Promise<State>> = {}
 
 /**
  * Unregister onQuit handlers
@@ -95,13 +98,18 @@ function registerOnQuit(state: Omit<State, 'onQuitHandler'>): State {
  * @return the State of the kubectl proxy
  *
  */
-async function startProxy(): Promise<State> {
+async function startProxy(kubeconfig?: string): Promise<State> {
   const { spawn } = await import('child_process')
   return new Promise<State>((resolve, reject) => {
     const iter = (port = 8001, retryCount = 0) => {
       try {
         debug('attempting to spawn kubectl proxy on port', port)
-        const process = spawn('kubectl', ['proxy', '--keepalive=120s', '--port', port.toString()])
+        const process = spawn(
+          'kubectl',
+          ['proxy', '--keepalive=120s', '--port', port.toString()].concat(
+            kubeconfig ? ['--kubeconfig', expandHomeDir(kubeconfig)] : []
+          )
+        )
         let myState: State
 
         // to make sure we don't smash the global variable on exit
@@ -137,19 +145,24 @@ async function startProxy(): Promise<State> {
 
         process.on('exit', (code, signal) => {
           debug('kubectl proxy has exited with code', code || signal)
-          if (currentProxyState !== undefined && retryCount >= maxRetries) {
+          const gotIt = kubeconfig ? currentProxyStateForKubeconfig[kubeconfig] : currentProxyState
+          if (!gotIt && retryCount >= maxRetries) {
             // then we are still trying to initialize, and haven't
             // exceeded our port retry loop count
             console.error(`kubectl proxy exited unexpectedly with exitCode=${code || signal}`)
             reject(new Error(stderr))
-          } else if (currentProxyState) {
+          } else if (gotIt) {
             // then we thought we had a stable kubectl proxy process, but it went and died on its own
             debug('marking proxy as terminated')
             if (myState) {
               myState.process = undefined
             }
             if (!iGotRetried) {
-              currentProxyState = undefined
+              if (kubeconfig) {
+                currentProxyStateForKubeconfig[kubeconfig] = undefined
+              } else {
+                currentProxyState = undefined
+              }
             }
           }
         })
@@ -183,22 +196,39 @@ function initProxyState() {
 }
 
 /** Is the current kubectl proxy viable? */
-function isProxyActive() {
-  return currentProxyState !== undefined
+function isProxyActive(kubeconfig?: string) {
+  if (!kubeconfig) {
+    return currentProxyState !== undefined
+  } else {
+    return currentProxyStateForKubeconfig[kubeconfig] !== undefined
+  }
 }
 
 interface KubectlProxyInfo {
   baseUrl: string
 }
 
+function startProxyFor(kubeconfig: string) {
+  if (!isProxyActive(kubeconfig)) {
+    currentProxyStateForKubeconfig[kubeconfig] = startProxy(kubeconfig)
+    console.error('!!!!STARTPROXY', kubeconfig, currentProxyStateForKubeconfig[kubeconfig])
+  }
+}
+
 /** @return information about the current kubectl proxy */
-export default async function getProxyState(): Promise<KubectlProxyInfo> {
-  if (!isProxyActive()) {
-    debug('attempting to start proxy')
-    initProxyState()
+export default async function getProxyState(kubeconfig?: string): Promise<KubectlProxyInfo> {
+  if (!isProxyActive(kubeconfig)) {
+    debug('attempting to start proxy', kubeconfig)
+    if (kubeconfig) {
+      startProxyFor(kubeconfig)
+    } else {
+      initProxyState()
+    }
   }
 
   return {
-    baseUrl: !isProxyActive() ? undefined : `http://localhost:${(await currentProxyState).port}`
+    baseUrl: !isProxyActive(kubeconfig)
+      ? undefined
+      : `http://localhost:${(await (kubeconfig ? currentProxyStateForKubeconfig[kubeconfig] : currentProxyState)).port}`
   }
 }

@@ -265,8 +265,13 @@ async function rawGet(
   const isGetAll = args.argvNoOptions[args.argvNoOptions.indexOf('get') + 1] === 'all'
   const requestWithoutKind = isGetAll || (!fileOf(args) && !_kind)
 
-  if ((command === 'oc' || command === 'kubectl') && !args.argvNoOptions.includes('|') && !requestWithoutKind) {
-    // try talking to the apiServer directly
+  if (
+    (command === 'oc' || command === 'kubectl') &&
+    !args.argvNoOptions.includes('|') &&
+    !requestWithoutKind &&
+    !args.parsedOptions.context
+  ) {
+    // try talking to the apiServer directly; we don't yet handle --context
     const response = await getDirect(args, _kind)
     if (response) {
       // that worked!

@@ -94,7 +94,10 @@ export function urlFormatterFor(
     const myApiOnPath = overrides && overrides.version ? apiOnPathFor(overrides.version) : apiOnPath
     const myKindOnPath = overrides && overrides.kind ? kindOnPathFor(overrides.kind) : kindOnPath
 
-    return `kubernetes:///${myApiOnPath}${namespaceOnPath}${!includeKind ? '' : myKindOnPath}${
+    const proto = parsedOptions.kubeconfig
+      ? `kubeconfig:///${encodeURIComponent(parsedOptions.kubeconfig)}`
+      : 'kubernetes://'
+    return `${proto}/${myApiOnPath}${namespaceOnPath}${!includeKind ? '' : myKindOnPath}${
       !name ? '' : `/${encodeURIComponent(name)}`
     }${!includeQueries || queries.length === 0 ? '' : '?' + queries.join('&')}`
   }

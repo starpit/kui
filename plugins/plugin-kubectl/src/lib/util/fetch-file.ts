@@ -32,6 +32,7 @@ const MAX_ECONNREFUSED_RETRIES = 10
 
 const httpScheme = /http(s)?:\/\//
 const kubernetesScheme = /^kubernetes:\/\//
+const kubeconfigScheme = /^kubeconfig:\/\/\/([^/]+)\//
 
 /** Instantiate a kubernetes:// scheme with the current kubectl proxy state */
 async function rescheme(url: string): Promise<string> {
@@ -39,7 +40,14 @@ async function rescheme(url: string): Promise<string> {
     const { baseUrl } = await getProxyState()
     return url.replace(kubernetesScheme, baseUrl)
   } else {
-    return url
+    const match = url.match(kubeconfigScheme)
+    if (match) {
+      const kubeconfig = decodeURIComponent(match[1])
+      const { baseUrl } = await getProxyState(kubeconfig)
+      return url.replace(kubeconfigScheme, baseUrl + '/')
+    } else {
+      return url
+    }
   }
 }
 
@@ -233,7 +241,7 @@ export async function fetchFile(
 
   const responses = await Promise.all(
     urls.map(async (url, idx) => {
-      if (httpScheme.test(url) || kubernetesScheme.test(url)) {
+      if (httpScheme.test(url) || kubernetesScheme.test(url) || kubeconfigScheme.test(url)) {
         debug('fetch remote', url)
         return fetchRemote(
           repl,
