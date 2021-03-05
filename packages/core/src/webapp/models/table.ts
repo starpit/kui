@@ -136,7 +136,7 @@ export enum TableStyle {
   Heavy
 }
 
-type PresentationStyle = 'table' | 'grid' | 'sequence-diagram' | 'timeline'
+type PresentationStyle = 'table' | 'grid' | 'sequence-diagram' | 'timeline' | 'histogram'
 
 export class Table<RowType extends Row = Row> {
   body: RowType[]
@@ -206,6 +206,10 @@ export class Table<RowType extends Row = Row> {
 
 export function isTableWithTimestamp(table: Table) {
   return table.startColumnIdx >= 0 && table.completeColumnIdx >= 0
+}
+
+export function isTableWithCount(table: Table) {
+  return table.body.findIndex(row => row.attributes.findIndex(_ => _.key.toLowerCase() === 'count') !== -1) !== -1
 }
 
 export function isTable<C>(model: MetadataBearing<C> | Entity): model is Table {
