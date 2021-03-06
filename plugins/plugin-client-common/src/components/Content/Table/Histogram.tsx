@@ -15,7 +15,7 @@
  */
 
 import React from 'react'
-import { VictoryChart, VictoryBar, VictoryVoronoiContainer } from 'victory'
+import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel, VictoryVoronoiContainer } from 'victory'
 import { REPL, Row, Tab, Table } from '@kui-shell/core'
 
 interface Props {
@@ -32,6 +32,12 @@ interface State {
 }
 
 export default class Histogram extends React.PureComponent<Props, State> {
+  private readonly horizontal = true
+  private readonly barHeight = 10
+  private readonly axisLabelFontSize = 9
+  private readonly minAxisLabelChars = 4
+  private readonly maxAxisLabelChars = 13
+
   public constructor(props: Props) {
     super(props)
     this.state = Histogram.getDerivedStateFromProps(props)
@@ -45,32 +51,74 @@ export default class Histogram extends React.PureComponent<Props, State> {
     return Object.assign({}, state, { rows: props.response.body })
   }
 
-  private rows() {
-    const asHorizontal = true
+  /** heuristic to allow "just enough" space for axis labels */
+  private leftPad() {
+    const longestAxisLabel = this.state.rows.reduce(
+      (maxLength, row) => Math.max(maxLength, (row.rowKey || row.name).length),
+      0
+    )
 
+    const leftPad = Math.min(
+      this.maxAxisLabelChars * this.axisLabelFontSize,
+      Math.max(this.minAxisLabelChars * this.axisLabelFontSize, longestAxisLabel * this.axisLabelFontSize)
+    )
+
+    return leftPad
+  }
+
+  private rows() {
     return (
       <VictoryChart
-        domainPadding={20}
-        horizontal={asHorizontal}
+        animate
+        domainPadding={10}
+        height={this.state.rows.length * this.barHeight * 1.2}
+        horizontal={this.horizontal}
         padding={{
-          left: 120,
-          right: 100,
-          bottom: 25
+          left: this.leftPad(),
+          right: 0,
+          top: 0,
+          bottom: 0
         }}
         containerComponent={<VictoryVoronoiContainer labels={_ => `${_.datum.x}: ${_.datum.y}`} />}
       >
-        <VictoryBar
-          animate
-          data={this.state.rows.map(row => {
-            const count = row.attributes.find(_ => _.key === 'Count').value
-            return {
-              x: row.rowKey || row.name,
-              y: parseInt(count)
-            }
-          })}
-          labels={_ => _.datum.y}
-        />
+        {this.axis()}
+        {this.bars()}
       </VictoryChart>
+    )
+  }
+
+  private axis() {
+    return (
+      <VictoryAxis
+        style={{
+          axis: { stroke: 'var(--color-base04)' },
+          tickLabels: {
+            fontFamily: 'var(--font-sans-serif)',
+            fontSize: this.axisLabelFontSize,
+            fill: 'var(--color-text-02)'
+          }
+        }}
+      />
+    )
+  }
+
+  private bars() {
+    return (
+      <VictoryBar
+        barWidth={this.barHeight}
+        style={{
+          data: { fill: 'var(--color-base05)', stroke: 'var(--color-base04)', strokeWidth: 0.5 },
+          labels: { fontFamily: 'var(--font-sans-serif)', fontSize: 6, fill: 'var(--color-base01)' }
+        }}
+        data={this.state.rows.map(row => {
+          return {
+            x: row.rowKey || row.name,
+            y: parseInt(row.attributes.find(_ => _.key === 'Count').value, 10)
+          }
+        })}
+        labels={_ => Math.round(_.datum.y)}
+        labelComponent={<VictoryLabel dx={({ data, index }) => -(10 + (Math.log10(data[index].y) - 1) * 4)} />}
+      />
     )
   }
 
