@@ -1,6 +1,6 @@
 {
   "packages": ["packages/*", "plugins/*"],
-  "version": "10.2.0-dev-20210319-104858",
+  "version": "10.2.0-dev-20210324-164214",
   "command": {
     "publish": {
       "conventionalCommits": true

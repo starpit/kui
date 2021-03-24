@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210324-164214](https://github.com/IBM/kui/compare/v10.2.0-dev-20210319-104858...v10.2.0-dev-20210324-164214) (2021-03-24)
+
+**Note:** Version bump only for package @kui-shell/plugin-proxy-support
+
 # [10.2.0-dev-20210319-104858](https://github.com/IBM/kui/compare/v4.1.0...v10.2.0-dev-20210319-104858) (2021-03-19)
 
 ### Bug Fixes
