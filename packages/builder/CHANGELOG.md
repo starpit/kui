@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210325-145009](https://github.com/IBM/kui/compare/v10.2.0-dev-20210324-164214...v10.2.0-dev-20210325-145009) (2021-03-25)
+
+### Features
+
+- **packages/builder:** Allow custom clients to inject custom launchers into electron builds ([8d469b9](https://github.com/IBM/kui/commit/8d469b9)), closes [#7220](https://github.com/IBM/kui/issues/7220)
+
 # [10.2.0-dev-20210324-164214](https://github.com/IBM/kui/compare/v10.2.0-dev-20210319-104858...v10.2.0-dev-20210324-164214) (2021-03-24)
 
 **Note:** Version bump only for package @kui-shell/builder
