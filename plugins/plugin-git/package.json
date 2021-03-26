@@ -1,6 +1,6 @@
 {
   "name": "@kui-shell/plugin-git",
-  "version": "10.2.0-dev-20210325-145009",
+  "version": "10.2.0-dev-20210326-163404",
   "description": "Kui plugin that offers git integrations",
   "license": "Apache-2.0",
   "author": "Nick Mitchell",

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210326-163404](https://github.com/IBM/kui/compare/v10.2.0-dev-20210325-145009...v10.2.0-dev-20210326-163404) (2021-03-26)
+
+### Bug Fixes
+
+- **plugins/plugin-bash-like:** in headless mode, don't bother trying to memoize user's alias and env ([692fc3d](https://github.com/IBM/kui/commit/692fc3d)), closes [#7229](https://github.com/IBM/kui/issues/7229)
+
 # [10.2.0-dev-20210325-145009](https://github.com/IBM/kui/compare/v10.2.0-dev-20210324-164214...v10.2.0-dev-20210325-145009) (2021-03-25)
 
 ### Bug Fixes

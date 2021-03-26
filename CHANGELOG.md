@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210326-163404](https://github.com/IBM/kui/compare/v10.2.0-dev-20210325-145009...v10.2.0-dev-20210326-163404) (2021-03-26)
+
+### Bug Fixes
+
+- **packages/core:** don't debug-emit the entire prescan model in headless mode ([f864ca6](https://github.com/IBM/kui/commit/f864ca6)), closes [#7227](https://github.com/IBM/kui/issues/7227)
+- **packages/core:** in headless mode, don't bother loading the history model ([9b2ee19](https://github.com/IBM/kui/commit/9b2ee19)), closes [#7228](https://github.com/IBM/kui/issues/7228)
+- **plugins/plugin-bash-like:** in headless mode, don't bother trying to memoize user's alias and env ([692fc3d](https://github.com/IBM/kui/commit/692fc3d)), closes [#7229](https://github.com/IBM/kui/issues/7229)
+- **plugins/plugin-kubectl:** don't retry file fetches so many times in headless mode ([2867ecf](https://github.com/IBM/kui/commit/2867ecf)), closes [#7225](https://github.com/IBM/kui/issues/7225)
+- **plugins/plugin-kubectl:** lazily load jsonpath npm ([86606c9](https://github.com/IBM/kui/commit/86606c9)), closes [#7231](https://github.com/IBM/kui/issues/7231)
+
 # [10.2.0-dev-20210325-145009](https://github.com/IBM/kui/compare/v10.2.0-dev-20210324-164214...v10.2.0-dev-20210325-145009) (2021-03-25)
 
 ### Bug Fixes
