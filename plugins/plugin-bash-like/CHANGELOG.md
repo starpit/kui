@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210327-194822](https://github.com/IBM/kui/compare/v10.2.0-dev-20210326-163404...v10.2.0-dev-20210327-194822) (2021-03-27)
+
+**Note:** Version bump only for package @kui-shell/plugin-bash-like
+
 # [10.2.0-dev-20210326-163404](https://github.com/IBM/kui/compare/v10.2.0-dev-20210325-145009...v10.2.0-dev-20210326-163404) (2021-03-26)
 
 ### Bug Fixes

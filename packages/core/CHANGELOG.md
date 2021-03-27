@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210327-194822](https://github.com/IBM/kui/compare/v10.2.0-dev-20210326-163404...v10.2.0-dev-20210327-194822) (2021-03-27)
+
+### Bug Fixes
+
+- **packages/core:** the second popup window does not use the size desired by the controller ([06b5b42](https://github.com/IBM/kui/commit/06b5b42)), closes [#7236](https://github.com/IBM/kui/issues/7236)
+
+### Features
+
+- **packages/core:** restore support for opening a popup window from headless mode ([be5fc9c](https://github.com/IBM/kui/commit/be5fc9c))
+
 # [10.2.0-dev-20210326-163404](https://github.com/IBM/kui/compare/v10.2.0-dev-20210325-145009...v10.2.0-dev-20210326-163404) (2021-03-26)
 
 ### Bug Fixes

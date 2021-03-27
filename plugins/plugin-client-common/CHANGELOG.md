@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210327-194822](https://github.com/IBM/kui/compare/v10.2.0-dev-20210326-163404...v10.2.0-dev-20210327-194822) (2021-03-27)
+
+### Bug Fixes
+
+- **plugins/plugin-client-common:** Custom Popup clients cannot specify noSettings and noHelp properties ([640c93d](https://github.com/IBM/kui/commit/640c93d)), closes [#7237](https://github.com/IBM/kui/issues/7237)
+
 # [10.2.0-dev-20210326-163404](https://github.com/IBM/kui/compare/v10.2.0-dev-20210325-145009...v10.2.0-dev-20210326-163404) (2021-03-26)
 
 **Note:** Version bump only for package @kui-shell/plugin-client-common
