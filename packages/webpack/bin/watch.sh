@@ -33,6 +33,7 @@ fi
 BUILDER_HOME="$MODULE_HOME"/builder
 
 CONFIG="$MODULE_HOME"/webpack/webpack.config.js
+HEADLESS_CONFIG="$MODULE_HOME"/webpack/headless-webpack.config.js
 
 THEME="${MODULE_HOME}"/client
 
@@ -50,6 +51,10 @@ else
 fi
 
 npx --no-install webpack serve --progress --config "$CONFIG" $OPEN &
+
+if [ -n "$KUI_HEADLESS_WEBPACK" ]; then
+    npx --no-install webpack watch --progress --config "$HEADLESS_CONFIG" $OPEN &
+fi
 
 if [ -n "$LOCKFILE" ]; then
     # don't exit until the dev server is ready
