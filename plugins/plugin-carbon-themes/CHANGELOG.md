@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210328-105347](https://github.com/IBM/kui/compare/v10.2.0-dev-20210327-194822...v10.2.0-dev-20210328-105347) (2021-03-28)
+
+**Note:** Version bump only for package @kui-shell/plugin-carbon-themes
+
 # [10.2.0-dev-20210327-194822](https://github.com/IBM/kui/compare/v10.2.0-dev-20210326-163404...v10.2.0-dev-20210327-194822) (2021-03-27)
 
 **Note:** Version bump only for package @kui-shell/plugin-carbon-themes
