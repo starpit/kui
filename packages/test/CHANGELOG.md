@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210329-151720](https://github.com/starpit/kui/compare/v10.2.0-dev-20210329-141135...v10.2.0-dev-20210329-151720) (2021-03-29)
+
+**Note:** Version bump only for package @kui-shell/test
+
 # [10.2.0-dev-20210329-141135](https://github.com/starpit/kui/compare/v10.2.0-dev-20210329-132715...v10.2.0-dev-20210329-141135) (2021-03-29)
 
 **Note:** Version bump only for package @kui-shell/test

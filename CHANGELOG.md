@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210329-151720](https://github.com/IBM/kui/compare/v10.2.0-dev-20210329-141135...v10.2.0-dev-20210329-151720) (2021-03-29)
+
+### Bug Fixes
+
+- **packages/webpack:** improve process shim for browser-based builds ([5027bd8](https://github.com/IBM/kui/commit/5027bd8))
+
 # [10.2.0-dev-20210329-141135](https://github.com/IBM/kui/compare/v10.2.0-dev-20210329-132715...v10.2.0-dev-20210329-141135) (2021-03-29)
 
 ### Bug Fixes

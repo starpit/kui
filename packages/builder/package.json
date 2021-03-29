@@ -1,6 +1,6 @@
 {
   "name": "@kui-shell/builder",
-  "version": "10.2.0-dev-20210329-141135",
+  "version": "10.2.0-dev-20210329-151720",
   "description": "Kui plugin development helpers",
   "license": "Apache-2.0",
   "author": "Nick Mitchell",
