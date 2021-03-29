@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210329-132715](https://github.com/IBM/kui/compare/v10.2.0-dev-20210328-105347...v10.2.0-dev-20210329-132715) (2021-03-29)
+
+**Note:** Version bump only for package @kui-shell/react
+
 # [10.2.0-dev-20210328-105347](https://github.com/IBM/kui/compare/v10.2.0-dev-20210327-194822...v10.2.0-dev-20210328-105347) (2021-03-28)
 
 **Note:** Version bump only for package @kui-shell/react
