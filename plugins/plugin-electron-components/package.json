@@ -1,6 +1,6 @@
 {
   "name": "@kui-shell/plugin-electron-components",
-  "version": "10.2.0-dev-20210329-151720",
+  "version": "10.2.0-dev-20210329-164535",
   "description": "Kui plugin that houses electron-specific React components",
   "license": "Apache-2.0",
   "author": "@starpit",

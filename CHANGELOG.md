@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [10.2.0-dev-20210329-164535](https://github.com/IBM/kui/compare/v10.2.0-dev-20210329-151720...v10.2.0-dev-20210329-164535) (2021-03-29)
+
+### Bug Fixes
+
+- **packages/webpack:** another headless webpack fix (CHERRY PICK WITH HEADLESS WEBPACK COMMIT FOR MASTER) ([725dbde](https://github.com/IBM/kui/commit/725dbde))
+
 # [10.2.0-dev-20210329-151720](https://github.com/IBM/kui/compare/v10.2.0-dev-20210329-141135...v10.2.0-dev-20210329-151720) (2021-03-29)
 
 ### Bug Fixes
