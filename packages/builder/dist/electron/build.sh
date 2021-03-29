@@ -37,7 +37,7 @@ CORE_HOME="$STAGING"/node_modules/@kui-shell/core
 THEME="$CLIENT_HOME"/node_modules/@kui-shell/client
 export BUILDER_HOME="$STAGING"/node_modules/@kui-shell/builder
 export BUILDDIR="$CLIENT_HOME"/dist/electron
-export HEADLESS_BUILDDIR="$CLIENT_HOME"/dist/headless
+export HEADLESS_BUILDDIR="$STAGING"/dist/headless
 
 #
 # ignore these files when bundling the ASAR (this is a regexp, not glob pattern)
